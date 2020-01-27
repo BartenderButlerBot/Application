@@ -62,14 +62,68 @@ client.connect(MQTT_SERVERP, MQTT_PORT)
 client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 client.publish("testTopic2", "application can publish", qos = 0, retain = False)
 
+### exit ###
+
+class Ui_ExitWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        #QtWidgets.QMainWindow.__init__(self)
+    
+    def setupUi(self):
+        
+        self.setWindowTitle("ExitWindow")
+        self.setGeometry(220, 310, 360, 150)
+        
+        self.terminateFlag = False
+        
+        self.buttonBox = QtWidgets.QDialogButtonBox(self)
+        self.buttonBox.setGeometry(QtCore.QRect(90, 110, 180, 32))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.buttonBox.sizePolicy().hasHeightForWidth())
+        
+        self.buttonBox.setSizePolicy(sizePolicy)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        
+        self.label = QtWidgets.QLabel(self)
+        self.label.setGeometry(QtCore.QRect(105, 30, 161, 71))
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setWordWrap(True)
+        self.label.setObjectName("label")
+
+        self.retranslateUi()
+        self.buttonBox.accepted.connect(self.killUi)
+        self.buttonBox.rejected.connect(self.close)
+        #QtCore.QMetaObject.connectSlotsByName()
+
+    def retranslateUi(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.setWindowTitle(_translate("ExitWindow", "Dialog"))
+        self.label.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
+        
+    def killUi(self):
+        self.terminateFlag = True
+        
+
+
 ########################## MAIN UI ##########################
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(802, 542)
+class Ui_Form(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+    
+    def setupUi(self):
+        self.setGeometry(0, 1, 802, 542)
+        self.setWindowTitle("Form")
+        self.exit = QtWidgets.QMainWindow()
+
+        #self.exitWindow = Ui_ExitWindow()
         
-        self.gridLayoutWidget = QtWidgets.QWidget(Form)
+        self.gridLayoutWidget = QtWidgets.QWidget(self)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 10, 791, 521))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
@@ -118,10 +172,13 @@ class Ui_Form(object):
 
         ### BUTTON ACTION LINK ###
 
-        self.retranslateUi(Form)
-        self.pushButton_4.clicked.connect(self.closeEvent)
+        self.retranslateUi()
+        self.pushButton_4.clicked.connect(self.exitPopup)
+        ### test close remove later ###
+        self.pushButton_3.clicked.connect(self.close)
+        ### test close remove later ###
         self.pushButton.clicked.connect(placeOrder)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        #QtCore.QMetaObject.connectSlotsByName(self.exitWindow)
 
         ### REFRESH TIMER ###
         
@@ -130,9 +187,8 @@ class Ui_Form(object):
         self.qTimer.timeout.connect(self.refreshUi)
         self.qTimer.start()
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
         self.pushButton_2.setText(_translate("Form", "Change Order"))
         self.label_2.setText(_translate("Form", "butlerACK"))
         self.pushButton.setText(_translate("Form", "Order Drink"))
@@ -148,10 +204,9 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         self.label.setText(_translate("Form", bartenderACK))
         self.label_3.setText(_translate("Form", bartenderOrder))
-                                        #+ str(self.i)))
         self.label_4.setText(_translate("Form", butlerStatus))
         self.label_5.setText(_translate("Form", bartenderInventoryA))
-        self.label_6.setText(_translate("Form", bartenderInventoryB))
+        self.label_6.setText(_translate("Form", bartenderInventoryB))    
         
     def setBAck(ack):
         global bartenderACK
@@ -172,8 +227,54 @@ class Ui_Form(object):
     def setBInvB(invB):
         global bartenderInventoryB
         bartenderInventoryB = invB
+
+    def exitPopup(self):
+        #self.exitFrame = QtWidgets.QWidget()
+        #self.exitWindow = Ui_ExitWindow()
+        #self.exitWindow.setupUi()
+        #self.exitWindow.show()
+
+        self.exit.setWindowTitle("Exit Window")
+        self.exit.setGeometry(220, 310, 360, 150)
         
-    def closeEvent(self, event):
+        #self.terminateFlag = False
+        
+        self.exitd = QtWidgets.QDialogButtonBox(self.exit)
+        self.exitd.setGeometry(QtCore.QRect(90, 110, 180, 32))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.exitd.sizePolicy().hasHeightForWidth())
+        
+        self.exitd.setSizePolicy(sizePolicy)
+        self.exitd.setOrientation(QtCore.Qt.Horizontal)
+        self.exitd.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.exitd.setCenterButtons(True)
+        self.exitd.setObjectName("buttonBox")
+        
+        self.exitl = QtWidgets.QLabel(self.exit)
+        self.exitl.setGeometry(QtCore.QRect(105, 30, 161, 71))
+        self.exitl.setAlignment(QtCore.Qt.AlignCenter)
+        self.exitl.setWordWrap(True)
+        self.exitl.setObjectName("label")
+
+        self.exitd.accepted.connect(self.killUi)
+        self.exitd.rejected.connect(self.exit.close)
+        #if self.exitWindow.terminateFlag == True:
+        self.exit.show()
+        
+        #self.close
+    def killUi(self):
+        print ("reached here")
+        self.exit.close()
+        self.close()
+        
+    def retranslateExit(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.exit.setWindowTitle(_translate("Exit Window", "Dialog"))
+        self.exitl.setText(_translate("Exit Window", "Are you sure you want to quit?"))
+        
+    '''def closeEvent(self, event):
         quit_msg = "Are you sure you want to exit the program?"
         reply = QtGui.QMessageBox.question(self, 'Message', 
                          quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
@@ -181,18 +282,14 @@ class Ui_Form(object):
         if reply == QtGui.QMessageBox.Yes:
             event.accept()
         else:
-            event.ignore()
+            event.ignore()'''
             
 ########################## Primary Code ##########################
-    
 def main():
     application = QtWidgets.QApplication(sys.argv)
-    application.setStyle('Fusion')
-    
-    main = QtWidgets.QWidget()
     window = Ui_Form()
-    window.setupUi(main)
-    main.show()
+    window.setupUi()
+    window.show()
 
     client.loop_start()
     

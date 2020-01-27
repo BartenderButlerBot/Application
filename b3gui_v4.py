@@ -62,12 +62,58 @@ client.connect(MQTT_SERVERP, MQTT_PORT)
 client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 client.publish("testTopic2", "application can publish", qos = 0, retain = False)
 
+### exit ###
+
+class Ui_ExitWindow(object):
+    def setupUi(self, ExitWindow):
+        self.mainFrame = ExitWindow
+        
+        ExitWindow.setObjectName("ExitWindow")
+        ExitWindow.resize(360, 150)
+        
+        self.terminateFlag = False
+        
+        self.buttonBox = QtWidgets.QDialogButtonBox(ExitWindow)
+        self.buttonBox.setGeometry(QtCore.QRect(90, 110, 180, 32))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.buttonBox.sizePolicy().hasHeightForWidth())
+        self.buttonBox.setSizePolicy(sizePolicy)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        self.label = QtWidgets.QLabel(ExitWindow)
+        self.label.setGeometry(QtCore.QRect(105, 30, 161, 71))
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setWordWrap(True)
+        self.label.setObjectName("label")
+
+        self.retranslateUi(ExitWindow)
+        self.buttonBox.accepted.connect(self.killUi)
+        self.buttonBox.rejected.connect(ExitWindow.close)
+        QtCore.QMetaObject.connectSlotsByName(ExitWindow)
+
+    def retranslateUi(self, ExitWindow):
+        _translate = QtCore.QCoreApplication.translate
+        ExitWindow.setWindowTitle(_translate("ExitWindow", "Dialog"))
+        self.label.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
+        
+    def killUi(self):
+        self.terminateFlag = True
+        self.mainFrame.close
+
 ########################## MAIN UI ##########################
 
 class Ui_Form(object):
     def setupUi(self, Form):
+        self.mainFrame = Form
+        
         Form.setObjectName("Form")
         Form.resize(802, 542)
+        self.exitFrame = None
+        self.exitWindow = None
         
         self.gridLayoutWidget = QtWidgets.QWidget(Form)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 10, 791, 521))
@@ -119,7 +165,10 @@ class Ui_Form(object):
         ### BUTTON ACTION LINK ###
 
         self.retranslateUi(Form)
-        self.pushButton_4.clicked.connect(self.closeEvent)
+        self.pushButton_4.clicked.connect(self.exitPopup)
+        ### test close remove later ###
+        self.pushButton_3.clicked.connect(Form.close)
+        ### test close remove later ###
         self.pushButton.clicked.connect(placeOrder)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
@@ -148,10 +197,11 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         self.label.setText(_translate("Form", bartenderACK))
         self.label_3.setText(_translate("Form", bartenderOrder))
-                                        #+ str(self.i)))
         self.label_4.setText(_translate("Form", butlerStatus))
         self.label_5.setText(_translate("Form", bartenderInventoryA))
         self.label_6.setText(_translate("Form", bartenderInventoryB))
+
+            
         
     def setBAck(ack):
         global bartenderACK
@@ -172,6 +222,15 @@ class Ui_Form(object):
     def setBInvB(invB):
         global bartenderInventoryB
         bartenderInventoryB = invB
+
+    def exitPopup(self):
+        '''self.exitFrame = QtWidgets.QWidget()
+        self.exitWindow = Ui_ExitWindow()
+        self.exitWindow.setupUi(self.exitFrame)
+        self.exitFrame.show()
+        if self.exitWindow.terminateFlag == True:'''
+        
+        self.mainFrame.close
         
     def closeEvent(self, event):
         quit_msg = "Are you sure you want to exit the program?"
