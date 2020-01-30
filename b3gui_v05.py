@@ -8,11 +8,15 @@
 
 import sys
 import paho.mqtt.client as mqtt
+import sqlite3
+from sqlite3 import Error
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+client = None 
 MQTT_SERVER = "192.168.1.78"
 MQTT_SERVERP = "192.168.1.68"
 MQTT_SERVERC = "172.16.105.250"
+MQTT_SERVERC2 = "172.16.105.167"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
 MQTT_PASSWORD = ""
@@ -23,6 +27,8 @@ BARINVB = "barInvB"
 SENSECONNACK = "senseConnack"
 SENSEDATA = "senseData"
 
+sqlConnect = None
+cursor = None
 
 bartenderACK = "bartenderACK"
 bartenderOrder = "bartenderOrder"
@@ -54,73 +60,60 @@ def placeOrder(self):
     dummyOrder = "gimme something else"
     client.publish("B3Order", dummyOrder, qos = 0, retain = False)
 
-client = mqtt.Client()
+
+def initMQTT(self):
+    global client
+    client = mqtt.Client()
+        
+    client.on_message = on_message
+    client.on_connect = on_connect
+    client.connect(MQTT_SERVERP, MQTT_PORT)
+    client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
+
+########################## SQLite3 SETUP ##########################
+
+def initSQL(self):
+    global sqlConnect
+    global cursor
+    sqlConnect = sqlite3.connect('B3_blackbook_v1.db')
+    cursor = sqlConnect.cursor()
+
+def insertSQL(self, tableName, columnName, values):
+    try:
+        cursor.execute("INSERT INTO " + str(tableName) + "(" + 
+                       str(columnName) + ") values(" + str(values) + ")")
+        print("Successfully inserted " + str(values) + 
+              " into table " + str(tableName))
+        sqlConnect.commit()
+    except Error as e:
+        print(e)
     
-client.on_message = on_message
-client.on_connect = on_connect
-client.connect(MQTT_SERVERP, MQTT_PORT)
-client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
-client.publish("testTopic2", "application can publish", qos = 0, retain = False)
-
-### exit ###
-
-class Ui_ExitWindow(object):
-    def setupUi(self, ExitWindow):
-        self.mainFrame = ExitWindow
-        
-        ExitWindow.setObjectName("ExitWindow")
-        ExitWindow.resize(360, 150)
-        
-        self.terminateFlag = False
-        
-        self.buttonBox = QtWidgets.QDialogButtonBox(ExitWindow)
-        self.buttonBox.setGeometry(QtCore.QRect(90, 110, 180, 32))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.buttonBox.sizePolicy().hasHeightForWidth())
-        self.buttonBox.setSizePolicy(sizePolicy)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName("buttonBox")
-        self.label = QtWidgets.QLabel(ExitWindow)
-        self.label.setGeometry(QtCore.QRect(105, 30, 161, 71))
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setWordWrap(True)
-        self.label.setObjectName("label")
-
-        self.retranslateUi(ExitWindow)
-        self.buttonBox.accepted.connect(self.killUi)
-        self.buttonBox.rejected.connect(ExitWindow.close)
-        QtCore.QMetaObject.connectSlotsByName(ExitWindow)
-
-    def retranslateUi(self, ExitWindow):
-        _translate = QtCore.QCoreApplication.translate
-        ExitWindow.setWindowTitle(_translate("ExitWindow", "Dialog"))
-        self.label.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
-        
-    def killUi(self):
-        self.terminateFlag = True
-        self.mainFrame.close
+def closeSQL(connect):
+    try: 
+        print("SQL closed successfully")
+        connect.close()
+    except Error as e:
+        print(e)
 
 ########################## MAIN UI ##########################
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        self.mainFrame = Form
-        
-        Form.setObjectName("Form")
-        Form.resize(802, 542)
-        self.exitFrame = None
-        self.exitWindow = None
-        
-        self.gridLayoutWidget = QtWidgets.QWidget(Form)
+class Ui_Form(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+    
+    def setupUi(self):
+        self.setGeometry(0, 1, 802, 542)
+        self.setWindowTitle("Form")
+        self.exit = QtWidgets.QDialog()
+
+        self.gridLayoutWidget = QtWidgets.QWidget(self)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 10, 791, 521))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
+
+        ### UI Creation ###
         
         self.pushButton_2 = QtWidgets.QPushButton(self.gridLayoutWidget)
         self.pushButton_2.setObjectName("pushButton_2")
@@ -164,13 +157,10 @@ class Ui_Form(object):
 
         ### BUTTON ACTION LINK ###
 
-        self.retranslateUi(Form)
+        self.retranslateUi()
         self.pushButton_4.clicked.connect(self.exitPopup)
-        ### test close remove later ###
-        self.pushButton_3.clicked.connect(Form.close)
-        ### test close remove later ###
+        self.pushButton_3.clicked.connect(self.newRecipe)
         self.pushButton.clicked.connect(placeOrder)
-        QtCore.QMetaObject.connectSlotsByName(Form)
 
         ### REFRESH TIMER ###
         
@@ -179,9 +169,24 @@ class Ui_Form(object):
         self.qTimer.timeout.connect(self.refreshUi)
         self.qTimer.start()
 
-    def retranslateUi(self, Form):
+    def newRecipe(self):
+        drink_name = "\"test drink sdfsdfg\""
+        liquor1_name = "\"liq 1\""
+        liquor1_amount_ml = 35
+        liquor2_name = "\"liq 2\""
+        liquor2_amount_ml = 40
+        ingredient1_name = "\"ing 1\""
+        ingredient1_amount_ml = 300
+        values = str(str(drink_name) + ", " + str(liquor1_name) + ", " + 
+                     str(liquor1_amount_ml) + ", " + str(liquor2_name) + ", " + 
+                     str(liquor2_amount_ml) + ", " + str(ingredient1_name) + ", " + 
+                     str(ingredient1_amount_ml))
+        insertSQL(cursor, "recipe", "drink_name, liquor1_name, " + 
+                  "liquor1_amount_ml,liquor2_name, liquor2_amount_ml," + 
+                  " ingredient1_name, ingredient1_amount_ml", values)
+
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
         self.pushButton_2.setText(_translate("Form", "Change Order"))
         self.label_2.setText(_translate("Form", "butlerACK"))
         self.pushButton.setText(_translate("Form", "Order Drink"))
@@ -199,9 +204,7 @@ class Ui_Form(object):
         self.label_3.setText(_translate("Form", bartenderOrder))
         self.label_4.setText(_translate("Form", butlerStatus))
         self.label_5.setText(_translate("Form", bartenderInventoryA))
-        self.label_6.setText(_translate("Form", bartenderInventoryB))
-
-            
+        self.label_6.setText(_translate("Form", bartenderInventoryB))    
         
     def setBAck(ack):
         global bartenderACK
@@ -224,34 +227,69 @@ class Ui_Form(object):
         bartenderInventoryB = invB
 
     def exitPopup(self):
-        '''self.exitFrame = QtWidgets.QWidget()
-        self.exitWindow = Ui_ExitWindow()
-        self.exitWindow.setupUi(self.exitFrame)
-        self.exitFrame.show()
-        if self.exitWindow.terminateFlag == True:'''
-        
-        self.mainFrame.close
-        
-    def closeEvent(self, event):
-        quit_msg = "Are you sure you want to exit the program?"
-        reply = QtGui.QMessageBox.question(self, 'Message', 
-                         quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        self.exit.setWindowTitle("ExitWindow")
+        self.exit.setGeometry(220, 310, 360, 150)
+        self.exitLayout = QtWidgets.QGridLayout()
 
-        if reply == QtGui.QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
+        ### UI Creation ###
+        
+        self.exitDialog = QtWidgets.QDialogButtonBox(self.exit)
+        self.exitDialog.setGeometry(QtCore.QRect(90, 110, 180, 32))
+        
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, \
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.exitDialog.sizePolicy().\
+                                     hasHeightForWidth())
+
+        self.exitDialog.setSizePolicy(sizePolicy)
+        self.exitDialog.setOrientation(QtCore.Qt.Horizontal)
+        self.exitDialog.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel\
+                                           |QtWidgets.QDialogButtonBox.Ok)
+        self.exitDialog.setCenterButtons(True)
+        self.exitDialog.setObjectName("buttonBox")
+        
+        self.exitLabel = QtWidgets.QLabel(self.exit)
+        self.exitLabel.setGeometry(QtCore.QRect(105, 30, 161, 71))
+        self.exitLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.exitLabel.setWordWrap(True)
+        self.exitLabel.setObjectName("label")
+
+        ### BUTTON ACTION LINK ## 
+
+        self.retranslateExit()
+        self.exitDialog.accepted.connect(self.killUi)
+        self.exitDialog.rejected.connect(self.exit.destroy)
+
+        ### UI FORMAT AND EXECUTION ###
+
+        self.exitLayout.addWidget(self.exitLabel, 0, 0)
+        self.exitLayout.addWidget(self.exitDialog, 1, 0)
+        self.exit.setLayout(self.exitLayout)
+
+        self.exit.show()
+
+    def killUi(self):
+        self.exit.destroy()
+        closeSQL(sqlConnect)
+        self.destroy()
+        sys.exit()
+        
+    def retranslateExit(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.exit.setWindowTitle(_translate("Exit Window", "Dialog"))
+        self.exitLabel.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
             
 ########################## Primary Code ##########################
-    
 def main():
-    application = QtWidgets.QApplication(sys.argv)
-    application.setStyle('Fusion')
+    initMQTT(client)
+    initSQL(sqlConnect)
     
-    main = QtWidgets.QWidget()
+    application = QtWidgets.QApplication(sys.argv)
     window = Ui_Form()
-    window.setupUi(main)
-    main.show()
+    window.setupUi()
+    window.show()
 
     client.loop_start()
     

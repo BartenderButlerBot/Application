@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sys
 
 class Ui_ExitWindow(object):
     def setupUi(self, ExitWindow):
@@ -39,3 +40,41 @@ class Ui_ExitWindow(object):
         ExitWindow.setWindowTitle(_translate("ExitWindow", "Dialog"))
         self.label.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
 
+def main():
+    application = QtWidgets.QApplication(sys.argv)
+
+    main = QtWidgets.QDialog()
+    window = Ui_ExitWindow()
+    window.setupUi(main)
+    main.show()
+
+    #client.loop_start()
+    
+    sys.exit(application.exec_())
+
+'''
+try:
+    client = mqtt.Client()
+    client.connect(MQTT_SERVERC, MQTT_PORT)
+    client.subscribe(SUB_TOPIC, qos = 1)
+    client.loop_start()
+
+    application = QtWidgets.QApplication(sys.argv)
+    application.setStyle('Fusion')
+    
+    main = QtWidgets.QWidget()
+    window = Ui_Form()
+    window.setupUi(main)
+
+    main.show()
+    client.on_message = on_message()
+    
+    sys.exit(application.exec_())
+    
+except Exception as e:
+    sys.stderr.write("Error: {0}".format(e))
+'''
+
+if __name__ == '__main__':
+    #try:
+    main()
