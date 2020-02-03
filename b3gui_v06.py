@@ -15,8 +15,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 client = None 
 MQTT_SERVER = "192.168.1.78"
 MQTT_SERVERP = "192.168.1.68"
-MQTT_SERVERC = "172.16.105.250"
-MQTT_SERVERC2 = "172.16.105.23"
+MQTT_SERVERC = "172.16.105.196"
+MQTT_SERVERC2 = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
 MQTT_PASSWORD = ""
@@ -70,7 +70,7 @@ def initMQTT(self):
         
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(MQTT_SERVERP, MQTT_PORT)
+    client.connect(MQTT_SERVERC2, MQTT_PORT)
     client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 
 ########################## SQLite3 SETUP ##########################
@@ -106,7 +106,7 @@ class Ui_Form(QtWidgets.QMainWindow):
     
     def setupUi(self):
         self.setGeometry(0, 150, 1024, 600)
-        self.setWindowTitle("Form")
+        self.setWindowTitle("Basic UI")
         self.exit = QtWidgets.QDialog()
 
         self.gridLayoutWidget = QtWidgets.QWidget(self)
@@ -288,7 +288,7 @@ class Ui_Form(QtWidgets.QMainWindow):
         
     def retranslateExit(self):
         _translate = QtCore.QCoreApplication.translate
-        self.exit.setWindowTitle(_translate("Exit Window", "Dialog"))
+        self.exit.setWindowTitle(_translate("Exit Window", "ExitWindow"))
         self.exitLabel.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
             
 ########################## Primary Code ##########################
