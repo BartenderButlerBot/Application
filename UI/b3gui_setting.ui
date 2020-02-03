@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>542</height>
+    <width>1024</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,11 +18,11 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>791</width>
-     <height>511</height>
+     <width>1021</width>
+     <height>551</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0">
     <property name="sizeConstraint">
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
@@ -121,6 +121,19 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QPushButton" name="pushButton_5">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>555</y>
+     <width>91</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
   </widget>
  </widget>
  <resources/>
