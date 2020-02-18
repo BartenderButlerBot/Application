@@ -110,18 +110,15 @@ def closeSQL(connect):
 
 ########################## MAIN UI ##########################
         
-class Ui_Primary_Window(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-    
-    def setupUi(self):
-        self.setWindowTitle("B3 GUI")
-        #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
-        self.setGeometry(0, 0, 1024, 600)
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(1024, 600)
+
         self.exit = QtWidgets.QDialog()
 
-        #lastOrderTuple = ('recipe Name', 'ing. type', 'ing. name', 'ing. amount')
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        lastOrderTuple = ('recipe Name', 'ing. type', 'ing. name', 'ing. amount')
+        Form.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         
         palette = QtGui.QPalette()
         
@@ -137,10 +134,10 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
         
-        self.setPalette(palette)
+        Form.setPalette(palette)
 
         
-        self.pushButton = QtWidgets.QPushButton(self)
+        self.pushButton = QtWidgets.QPushButton(Form)
         self.pushButton.setGeometry(QtCore.QRect(40, 40, 621, 201))
         
         palette = QtGui.QPalette()
@@ -158,7 +155,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QtWidgets.QPushButton(self)
+        self.pushButton_2 = QtWidgets.QPushButton(Form)
         self.pushButton_2.setGeometry(QtCore.QRect(40, 290, 291, 111))
         
         palette = QtGui.QPalette()
@@ -193,7 +190,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_3 = QtWidgets.QPushButton(self)
+        self.pushButton_3 = QtWidgets.QPushButton(Form)
         self.pushButton_3.setGeometry(QtCore.QRect(40, 450, 90, 90))
         
         palette = QtGui.QPalette()
@@ -226,7 +223,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Main")
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_4 = QtWidgets.QPushButton(self)
+        self.pushButton_4 = QtWidgets.QPushButton(Form)
         self.pushButton_4.setGeometry(QtCore.QRect(140, 450, 90, 90))
         
         palette = QtGui.QPalette()
@@ -259,7 +256,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Main")
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
-        self.pushButton_5 = QtWidgets.QPushButton(self)
+        self.pushButton_5 = QtWidgets.QPushButton(Form)
         self.pushButton_5.setGeometry(QtCore.QRect(240, 450, 90, 90))
         
         palette = QtGui.QPalette()
@@ -292,7 +289,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Main")
         self.pushButton_5.setFont(font)
         self.pushButton_5.setObjectName("pushButton_5")
-        self.pushButton_6 = QtWidgets.QPushButton(self)
+        self.pushButton_6 = QtWidgets.QPushButton(Form)
         self.pushButton_6.setGeometry(QtCore.QRect(820, 30, 161, 61))
         
         palette = QtGui.QPalette()
@@ -313,7 +310,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Main")
         self.pushButton_6.setFont(font)
         self.pushButton_6.setObjectName("pushButton_6")
-        self.BatteryCharge = QtWidgets.QProgressBar(self)
+        self.BatteryCharge = QtWidgets.QProgressBar(Form)
         self.BatteryCharge.setGeometry(QtCore.QRect(800, 540, 101, 31))
         
         palette = QtGui.QPalette()
@@ -332,7 +329,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.BatteryCharge.setPalette(palette)
         self.BatteryCharge.setProperty("value", 100)
         self.BatteryCharge.setObjectName("BatteryCharge")
-        self.listWidget = QtWidgets.QListWidget(self)
+        self.listWidget = QtWidgets.QListWidget(Form)
         self.listWidget.setGeometry(QtCore.QRect(770, 0, 254, 600))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
@@ -364,7 +361,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Caligraphic")
         self.listWidget.setFont(font)
         self.listWidget.setObjectName("listWidget")
-        self.listWidget_2 = QtWidgets.QListWidget(self)
+        self.listWidget_2 = QtWidgets.QListWidget(Form)
         self.listWidget_2.setGeometry(QtCore.QRect(370, 290, 291, 251))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
@@ -387,25 +384,25 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
         self.listWidget_2.setPalette(palette)
         self.listWidget_2.setObjectName("listWidget_2")
-        self.label = QtWidgets.QLabel(self)
+        self.label = QtWidgets.QLabel(Form)
         self.label.setGeometry(QtCore.QRect(380, 310, 151, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.label_2 = QtWidgets.QLabel(self)
+        self.label_2 = QtWidgets.QLabel(Form)
         self.label_2.setGeometry(QtCore.QRect(380, 340, 141, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Main")
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
-        self.label_3 = QtWidgets.QLabel(self)
+        self.label_3 = QtWidgets.QLabel(Form)
         self.label_3.setGeometry(QtCore.QRect(780, 510, 141, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Main")
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
-        self.progressBar = QtWidgets.QProgressBar(self)
+        self.progressBar = QtWidgets.QProgressBar(Form)
         self.progressBar.setGeometry(QtCore.QRect(890, 140, 118, 31))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
@@ -432,7 +429,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.progressBar.setFont(font)
         self.progressBar.setProperty("value", 80)
         self.progressBar.setObjectName("progressBar")
-        self.progressBar_2 = QtWidgets.QProgressBar(self)
+        self.progressBar_2 = QtWidgets.QProgressBar(Form)
         self.progressBar_2.setGeometry(QtCore.QRect(890, 180, 118, 31))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
@@ -459,7 +456,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.progressBar_2.setFont(font)
         self.progressBar_2.setProperty("value", 94)
         self.progressBar_2.setObjectName("progressBar_2")
-        self.progressBar_3 = QtWidgets.QProgressBar(self)
+        self.progressBar_3 = QtWidgets.QProgressBar(Form)
         self.progressBar_3.setGeometry(QtCore.QRect(890, 220, 118, 31))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
@@ -487,7 +484,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.progressBar_3.setFont(font)
         self.progressBar_3.setProperty("value", 100)
         self.progressBar_3.setObjectName("progressBar_3")
-        self.progressBar_4 = QtWidgets.QProgressBar(self)
+        self.progressBar_4 = QtWidgets.QProgressBar(Form)
         self.progressBar_4.setGeometry(QtCore.QRect(890, 300, 118, 31))
         
         palette = QtGui.QPalette()
@@ -515,7 +512,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.progressBar_4.setFont(font)
         self.progressBar_4.setProperty("value", 100)
         self.progressBar_4.setObjectName("progressBar_4")
-        self.progressBar_5 = QtWidgets.QProgressBar(self)
+        self.progressBar_5 = QtWidgets.QProgressBar(Form)
         self.progressBar_5.setGeometry(QtCore.QRect(890, 260, 118, 31))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
@@ -542,55 +539,55 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.progressBar_5.setFont(font)
         self.progressBar_5.setProperty("value", 100)
         self.progressBar_5.setObjectName("progressBar_5")
-        self.label_4 = QtWidgets.QLabel(self)
+        self.label_4 = QtWidgets.QLabel(Form)
         self.label_4.setGeometry(QtCore.QRect(780, 140, 90, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
         self.label_4.setFont(font)
         self.label_4.setObjectName("label_4")
-        self.label_5 = QtWidgets.QLabel(self)
+        self.label_5 = QtWidgets.QLabel(Form)
         self.label_5.setGeometry(QtCore.QRect(780, 220, 90, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
         self.label_5.setFont(font)
         self.label_5.setObjectName("label_5")
-        self.label_6 = QtWidgets.QLabel(self)
+        self.label_6 = QtWidgets.QLabel(Form)
         self.label_6.setGeometry(QtCore.QRect(780, 300, 90, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
         self.label_6.setFont(font)
         self.label_6.setObjectName("label_6")
-        self.label_7 = QtWidgets.QLabel(self)
+        self.label_7 = QtWidgets.QLabel(Form)
         self.label_7.setGeometry(QtCore.QRect(780, 260, 90, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
         self.label_7.setFont(font)
         self.label_7.setObjectName("label_7")
-        self.label_8 = QtWidgets.QLabel(self)
+        self.label_8 = QtWidgets.QLabel(Form)
         self.label_8.setGeometry(QtCore.QRect(780, 180, 90, 28))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
         self.label_8.setFont(font)
         self.label_8.setObjectName("label_8")
-        self.label_9 = QtWidgets.QLabel(self)
+        self.label_9 = QtWidgets.QLabel(Form)
         self.label_9.setGeometry(QtCore.QRect(920, 540, 90, 28))
         self.label_9.setText("")
         self.label_9.setObjectName("label_9")
-        self.line = QtWidgets.QFrame(self)
+        self.line = QtWidgets.QFrame(Form)
         self.line.setGeometry(QtCore.QRect(380, 370, 271, 16))
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
-        self.label_10 = QtWidgets.QLabel(self)
+        self.label_10 = QtWidgets.QLabel(Form)
         self.label_10.setGeometry(QtCore.QRect(380, 390, 121, 28))
         self.label_10.setObjectName("label_10")
-        self.label_11 = QtWidgets.QLabel(self)
+        self.label_11 = QtWidgets.QLabel(Form)
         self.label_11.setGeometry(QtCore.QRect(380, 420, 121, 28))
         self.label_11.setObjectName("label_11")
-        self.label_12 = QtWidgets.QLabel(self)
+        self.label_12 = QtWidgets.QLabel(Form)
         self.label_12.setGeometry(QtCore.QRect(560, 390, 90, 28))
         self.label_12.setObjectName("label_12")
-        self.label_13 = QtWidgets.QLabel(self)
+        self.label_13 = QtWidgets.QLabel(Form)
         self.label_13.setGeometry(QtCore.QRect(560, 420, 90, 28))
         self.label_13.setObjectName("label_13")
         
@@ -623,8 +620,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.label_12.raise_()
         self.label_13.raise_()
 
-        self.retranslateUi(self)
-        self.pushButton.clicked.connect(self.openMenuShell)
+        self.retranslateUi(Form)
         self.pushButton_5.clicked.connect(self.exitPopup)
         #QtCore.QMetaObject.connectSlotsByName(Form)
         
@@ -670,13 +666,10 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.label_11.setText(_translate("Form", currentOrderIng2Name))
         self.label_12.setText(_translate("Form", currentOrderIng1Amount))
         self.label_13.setText(_translate("Form", currentOrderIng2Amount))
-
-    def openMenuShell(self):
-        self.window = QtWidgets
         
     def exitPopup(self):
         self.exit.setObjectName("ExitWindow")
-        self.exit.setGeometry(332, 350, 360, 150)
+        self.exit.resize(360, 150)
         self.exitLayout = QtWidgets.QGridLayout()
 
         
@@ -700,7 +693,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         self.exitLabel.setObjectName("label")
 
         self.retranslateExit()
-        self.exitDialog.accepted.connect(self.killUi)
+        self.exitDialog.accepted.connect(self.killUi())
         self.exitDialog.rejected.connect(self.exit.destroy)
 
         self.exitLayout.addWidget(self.exitLabel, 0, 0)
@@ -713,7 +706,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         #self.exit.getdfsdfogjh()
         self.exit.destroy()
         closeSQL(sqlConnect)
-        QtCore.QCoreApplication.instance().quit
+        self.destroy()
         sys.exit()
 
     def retranslateExit(self):
@@ -727,10 +720,12 @@ def main():
     initSQL(sqlConnect)
 
     application = QtWidgets.QApplication(sys.argv)
-    application.setStyle('Fusion')   
-    window = Ui_Primary_Window()
-    window.setupUi()
-    window.show()
+    application.setStyle('Fusion')
+    
+    main = QtWidgets.QWidget()
+    window = Ui_Form()
+    window.setupUi(main)
+    main.show()
 
     client.loop_start()
     

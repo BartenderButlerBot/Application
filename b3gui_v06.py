@@ -13,9 +13,9 @@ from sqlite3 import Error
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
-MQTT_SERVER = "192.168.1.78"
+MQTT_SERVER = "192.168.1.77"
 MQTT_SERVERP = "192.168.1.68"
-MQTT_SERVERC = "172.16.105.196"
+MQTT_SERVERC = "172.16.105.218"
 MQTT_SERVERC2 = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
@@ -70,7 +70,7 @@ def initMQTT(self):
         
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(MQTT_SERVERC2, MQTT_PORT)
+    client.connect(MQTT_SERVERC, MQTT_PORT)
     client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 
 ########################## SQLite3 SETUP ##########################
@@ -281,6 +281,7 @@ class Ui_Form(QtWidgets.QMainWindow):
         self.exit.show()
 
     def killUi(self):
+        #self.exit.getdfsdfogjh()
         self.exit.destroy()
         closeSQL(sqlConnect)
         self.destroy()
