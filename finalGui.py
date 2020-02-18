@@ -113,16 +113,17 @@ def closeSQL(connect):
 class Ui_Primary_Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-    
-    def setupUi(self):
         self.setWindowTitle("B3 GUI")
-        #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
         self.setGeometry(0, 0, 1024, 600)
+        #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
         self.exit = QtWidgets.QDialog()
 
-        #lastOrderTuple = ('recipe Name', 'ing. type', 'ing. name', 'ing. amount')
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setupPrimary()
+        self.show()
+    
+    def setupPrimary(self):
         
+        #lastOrderTuple = ('recipe Name', 'ing. type', 'ing. name', 'ing. amount')        
         palette = QtGui.QPalette()
         
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
@@ -729,8 +730,6 @@ def main():
     application = QtWidgets.QApplication(sys.argv)
     application.setStyle('Fusion')   
     window = Ui_Primary_Window()
-    window.setupUi()
-    window.show()
 
     client.loop_start()
     

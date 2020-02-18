@@ -34,13 +34,13 @@ class StackedWidget(QWidget):
             self.stackedWidget.addWidget(label)
             self.button = QPushButton("Stack" + str(x))
             self.button.setStyleSheet('background-color:green')
-            #self.button.page = x
+            self.button.page = x
             self.button.clicked.connect(self.btn_clicked)
             vbox.addWidget(self.button)
         self.setLayout(vbox)
     def btn_clicked(self):
         self.button = self.sender()
-        #self.stackedWidget.setCurrentIndex(self.button.page)
+        self.stackedWidget.setCurrentIndex(self.button.page)
 App = QApplication(sys.argv)
 window = StackedWidget()
 sys.exit(App.exec())
