@@ -87,7 +87,7 @@
     </palette>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="page">
     <property name="sizePolicy">
@@ -1373,6 +1373,34 @@ Tools</string>
       <string>Battery Charge</string>
      </property>
     </widget>
+    <zorder>pushButton</zorder>
+    <zorder>listWidget</zorder>
+    <zorder>listWidget_2</zorder>
+    <zorder>label_12</zorder>
+    <zorder>pushButton_2</zorder>
+    <zorder>pushButton_5</zorder>
+    <zorder>label_4</zorder>
+    <zorder>label</zorder>
+    <zorder>pushButton_4</zorder>
+    <zorder>BatteryCharge</zorder>
+    <zorder>progressBar_5</zorder>
+    <zorder>label_2</zorder>
+    <zorder>label_13</zorder>
+    <zorder>label_10</zorder>
+    <zorder>label_5</zorder>
+    <zorder>pushButton_3</zorder>
+    <zorder>label_3</zorder>
+    <zorder>line</zorder>
+    <zorder>label_9</zorder>
+    <zorder>label_8</zorder>
+    <zorder>label_7</zorder>
+    <zorder>label_6</zorder>
+    <zorder>progressBar</zorder>
+    <zorder>progressBar_2</zorder>
+    <zorder>progressBar_3</zorder>
+    <zorder>progressBar_4</zorder>
+    <zorder>label_11</zorder>
+    <zorder>pushButton_6</zorder>
    </widget>
    <widget class="QWidget" name="page_2">
     <widget class="QWidget" name="widget_2" native="true">
@@ -1578,5 +1606,22 @@ Tools</string>
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
