@@ -118,7 +118,7 @@ class Ui_Primary_Window(QtWidgets.QMainWindow):
         #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
         self.exit = QtWidgets.QDialog()
         
-        self.stackedWidget = QtWidgets.QStackedWidget()
+        self.stackedWidget = QtWidgets.QStackedWidget(self)
         self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 1024, 600))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
