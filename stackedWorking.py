@@ -81,7 +81,7 @@ def initMQTT(self):
         
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(MQTT_SERVER, MQTT_PORT)
+    client.connect(MQTT_SERVERC2, MQTT_PORT)
     client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 
 ########################## SQLite3 SETUP ##########################
@@ -421,6 +421,9 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Main")
         self.pushButton_quit.setFont(font)
         self.pushButton_quit.setObjectName("pushButton_quit")
+
+        self.pushButton_quit.clicked.connect(self.exitPopup)
+        
         self.label_config = QtWidgets.QLabel(self.page)
         self.label_config.setGeometry(QtCore.QRect(780, 140, 90, 28))
         font = QtGui.QFont()
@@ -842,6 +845,68 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def toPrimary(self):
         self.stackedWidget.setCurrentIndex(0)
+
+
+    def exitPopup(self):
+        self.exit.setObjectName("ExitWindow")
+        self.exit.setGeometry(332, 350, 360, 150)
+        self.exitLayout = QtWidgets.QGridLayout()
+
+        palette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
+        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
+        self.exit.setPalette(palette)
+        
+        self.exitDialog = QtWidgets.QDialogButtonBox(self.exit)
+        self.exitDialog.setGeometry(QtCore.QRect(90, 110, 180, 32))
+        
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.exitDialog.sizePolicy().hasHeightForWidth())
+        
+        self.exitDialog.setSizePolicy(sizePolicy)
+        self.exitDialog.setOrientation(QtCore.Qt.Horizontal)
+        self.exitDialog.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.exitDialog.setCenterButtons(True)
+        self.exitDialog.setObjectName("buttonBox")
+        self.exitLabel = QtWidgets.QLabel(self.exit)
+        self.exitLabel.setGeometry(QtCore.QRect(105, 30, 161, 71))
+        self.exitLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.exitLabel.setWordWrap(True)
+        self.exitLabel.setObjectName("label")
+
+        self.retranslateExit()
+        self.exitDialog.accepted.connect(self.killUi)
+        self.exitDialog.rejected.connect(self.exit.destroy)
+
+        self.exitLayout.addWidget(self.exitLabel, 0, 0)
+        self.exitLayout.addWidget(self.exitDialog, 1, 0)
+        self.exit.setLayout(self.exitLayout)
+
+        self.exit.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        
+        self.exit.show()
+
+    def killUi(self):
+        #self.exit.getdfsdfogjh()
+        self.exit.destroy()
+        closeSQL(sqlConnect)
+        QtCore.QCoreApplication.instance().quit
+        sys.exit()
+
+    def retranslateExit(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.exit.setWindowTitle(_translate("ExitWindow", "Dialog"))
+        self.exitLabel.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
 
 def main():
     initMQTT(client)
