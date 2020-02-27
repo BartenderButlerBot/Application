@@ -1468,44 +1468,19 @@ Tools</string>
           <x>10</x>
           <y>10</y>
           <width>701</width>
-          <height>541</height>
+          <height>542</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_menu">
-         <item row="1" column="0">
-          <layout class="QGridLayout" name="gridLayout_menuRecipe_3">
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_recipeIngDynamicLater_3">
-             <property name="text">
-              <string>Ingredient 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_recipeIng1_3">
-             <property name="text">
-              <string>Ingredient 1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_47">
-             <property name="text">
-              <string>Ingredient 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="Line" name="line_menuRecipe_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_recipeIngDynamicLater2_3">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_menuRecipe">
+           <item>
+            <widget class="QLabel" name="label_recipeIngName">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1513,50 +1488,25 @@ Tools</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>199</height>
               </size>
              </property>
              <property name="text">
-              <string>next row</string>
+              <string>NameofDrink</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_menuRecipe">
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_recipeIngDynamicLater">
-             <property name="text">
-              <string>Ingredient 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_recipeIng1">
-             <property name="text">
-              <string>Ingredient 1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_37">
-             <property name="text">
-              <string>Ingredient 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
+           <item>
             <widget class="Line" name="line_menuRecipe">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_recipeIngDynamicLater2">
+           <item>
+            <widget class="QLabel" name="label_recipeIng1">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1564,50 +1514,18 @@ Tools</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>13</height>
               </size>
              </property>
-             <property name="text">
-              <string>NameofDrink</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="2">
-          <layout class="QGridLayout" name="gridLayout_6">
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_39">
-             <property name="text">
-              <string>Ingredient 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_40">
              <property name="text">
               <string>Ingredient 1</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_41">
-             <property name="text">
-              <string>Ingredient 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="Line" name="line_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_42">
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1615,11 +1533,30 @@ Tools</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>13</height>
               </size>
              </property>
              <property name="text">
-              <string>NameofDrink</string>
+              <string>Ingredient 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 3</string>
              </property>
             </widget>
            </item>
@@ -1651,40 +1588,12 @@ Tools</string>
            </property>
           </spacer>
          </item>
-         <item row="1" column="2">
-          <layout class="QGridLayout" name="gridLayout_menuRecipe_4">
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_recipeIngDynamicLater_4">
-             <property name="text">
-              <string>Ingredient 2</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_recipeIng1_4">
-             <property name="text">
-              <string>Ingredient 1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_48">
-             <property name="text">
-              <string>Ingredient 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="Line" name="line_menuRecipe_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_recipeIngDynamicLater2_4">
+         <item row="0" column="2">
+          <layout class="QVBoxLayout" name="verticalLayout_menuRecipe_10">
+           <item>
+            <widget class="QLabel" name="label_recipeIngName_10">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1692,11 +1601,249 @@ Tools</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>50</height>
+               <height>199</height>
               </size>
              </property>
              <property name="text">
-              <string>next row</string>
+              <string>NameofDrink</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_menuRecipe_10">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIng1_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater2_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 3</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_menuRecipe_11">
+           <item>
+            <widget class="QLabel" name="label_recipeIngName_11">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>199</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>NameofDrink</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_menuRecipe_11">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIng1_11">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater_11">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater2_11">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 3</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="2">
+          <layout class="QVBoxLayout" name="verticalLayout_menuRecipe_12">
+           <item>
+            <widget class="QLabel" name="label_recipeIngName_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>199</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>NameofDrink</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_menuRecipe_12">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIng1_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_recipeIngDynamicLater2_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>13</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Ingredient 3</string>
              </property>
             </widget>
            </item>

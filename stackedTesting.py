@@ -65,7 +65,7 @@ def on_message(client, userdata, message):
         bartenderInventoryB = msg
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str((rc+5)%10))
+    print("Connected with result code "+str(rc))
     
 def placeOrder(self):
     dummyOrder = "gimme something else"
@@ -117,6 +117,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("B3 GUI")
         self.setGeometry(0, 0, 1024, 600)
         #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
+        _translate = QtCore.QCoreApplication.translate
         self.exit = QtWidgets.QDialog()
 
         palette = QtGui.QPalette()
@@ -161,6 +162,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
     
     def setupPrimary(self):
 
+        _translate = QtCore.QCoreApplication.translate
+        
         ##################### Page 1 #####################
         
         self.page = QtWidgets.QWidget()
@@ -622,12 +625,14 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_pageToPrimary = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToPrimary.setGeometry(QtCore.QRect(11, 441, 131, 111))
         self.pushButton_pageToPrimary.setObjectName("pushButton_pageToPrimary")
+        self.pushButton_pageToPrimary.setText(_translate("B3GUI", "Main Window"))
 
         self.pushButton_pageToPrimary.clicked.connect(self.toPrimary)
 
         self.pushButton_pageToCustom = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToCustom.setGeometry(QtCore.QRect(11, 311, 131, 111))
         self.pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
+        self.pushButton_pageToCustom.setText(_translate("B3GUI", "Custom Order"))
 
         self.pushButton_pageToCustom.clicked.connect(self.toCustom)
 
@@ -645,122 +650,81 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.gridLayout_menu.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.gridLayout_menu.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_menu.setObjectName("gridLayout_menu")
-        self.verticalLayout_menuRecipe = QtWidgets.QVBoxLayout()
-        self.verticalLayout_menuRecipe.setObjectName("verticalLayout_menuRecipe")
-        self.label_recipeIngName = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName.setSizePolicy(sizePolicy)
-        self.label_recipeIngName.setMinimumSize(QtCore.QSize(0, 50))
-        self.label_recipeIngName.setObjectName("label_recipeIngName")
-        self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngName)
-        self.line_menuRecipe = QtWidgets.QFrame(self.gridLayoutWidget_4)
-        self.line_menuRecipe.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_menuRecipe.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_menuRecipe.setObjectName("line_menuRecipe")
-        self.verticalLayout_menuRecipe.addWidget(self.line_menuRecipe)
-        self.label_recipeIng1 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIng1.setObjectName("label_recipeIng1")
-        self.verticalLayout_menuRecipe.addWidget(self.label_recipeIng1)
-        self.label_recipeIngDynamicLater = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater.setObjectName("label_recipeIngDynamicLater")
-        self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngDynamicLater)
-        self.label_recipeIngDynamicLater2 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater2.setObjectName("label_recipeIngDynamicLater2")
-        self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngDynamicLater2)
-        self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe, 0, 0, 1, 1)
 
-        
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_menu.addItem(spacerItem, 0, 1, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_menu.addItem(spacerItem1, 1, 1, 1, 1)
+        numRecipe = 5
 
-        
-        self.verticalLayout_menuRecipe_2 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_menuRecipe_2.setObjectName("verticalLayout_menuRecipe_2")
-        self.label_recipeIngName_2 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName_2.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName_2.setSizePolicy(sizePolicy)
-        self.label_recipeIngName_2.setMinimumSize(QtCore.QSize(0, 50))
-        self.label_recipeIngName_2.setObjectName("label_recipeIngName_2")
-        self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIngName_2)
-        self.line_menuRecipe_2 = QtWidgets.QFrame(self.gridLayoutWidget_4)
-        self.line_menuRecipe_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_menuRecipe_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_menuRecipe_2.setObjectName("line_menuRecipe_2")
-        self.verticalLayout_menuRecipe_2.addWidget(self.line_menuRecipe_2)
-        self.label_recipeIng1_2 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIng1_2.setObjectName("label_recipeIng1_2")
-        self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIng1_2)
-        self.label_recipeIngDynamicLater_2 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater_2.setObjectName("label_recipeIngDynamicLater_2")
-        self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIngDynamicLater_2)
-        self.label_recipeIngDynamicLater2_2 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater2_2.setObjectName("label_recipeIngDynamicLater2_2")
-        self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIngDynamicLater2_2)
-        self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_2, 0, 2, 1, 1)
+        for i in range(numRecipe):
+            verticalLayout_menuRecipe = QtWidgets.QVBoxLayout()
+            verticalLayout_menuRecipe.setObjectName("verticalLayout_menuRecipe")
+                                             
+            label_recipeName = QtWidgets.QLabel(self.gridLayoutWidget_4)                            
+            sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(label_recipeName.sizePolicy().hasHeightForWidth())
+            label_recipeName.setSizePolicy(sizePolicy)
+            label_recipeName.setMinimumSize(QtCore.QSize(0, 199))
+            label_recipeName.setObjectName("label_recipeName")
+            label_recipeName.setText(_translate("B3GUI", "NameofDrink"))
+            verticalLayout_menuRecipe.addWidget(label_recipeName)
+                                             
+            line_menuRecipe = QtWidgets.QFrame(self.gridLayoutWidget_4)
+            line_menuRecipe.setFrameShape(QtWidgets.QFrame.HLine)
+            line_menuRecipe.setFrameShadow(QtWidgets.QFrame.Sunken)
+            line_menuRecipe.setObjectName("line_menuRecipe")
+            verticalLayout_menuRecipe.addWidget(line_menuRecipe)
 
-        
-        self.verticalLayout_menuRecipe_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_menuRecipe_3.setObjectName("verticalLayout_menuRecipe_3")
-        self.label_recipeIngName_3 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName_3.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName_3.setSizePolicy(sizePolicy)
-        self.label_recipeIngName_3.setMinimumSize(QtCore.QSize(0, 50))
-        self.label_recipeIngName_3.setObjectName("label_recipeIngName_3")
-        self.verticalLayout_menuRecipe_3.addWidget(self.label_recipeIngName_3)
-        self.line_menuRecipe_3 = QtWidgets.QFrame(self.gridLayoutWidget_4)
-        self.line_menuRecipe_3.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_menuRecipe_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_menuRecipe_3.setObjectName("line_menuRecipe_3")
-        self.verticalLayout_menuRecipe_3.addWidget(self.line_menuRecipe_3)
-        self.label_recipeIng1_3 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIng1_3.setObjectName("label_recipeIng1_3")
-        self.verticalLayout_menuRecipe_3.addWidget(self.label_recipeIng1_3)
-        self.label_recipeIngDynamicLater_3 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater_3.setObjectName("label_recipeIngDynamicLater_3")
-        self.verticalLayout_menuRecipe_3.addWidget(self.label_recipeIngDynamicLater_3)
-        self.label_recipeIngDynamicLater2_3 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater2_3.setObjectName("label_recipeIngDynamicLater2_3")
-        self.verticalLayout_menuRecipe_3.addWidget(self.label_recipeIngDynamicLater2_3)
-        self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_3, 1, 0, 1, 1)
+            
+            if (i%2 == 1):
+                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                self.gridLayout_menu.addItem(spacerItem, (int((i-1)/2)), 1, 1, 1)
 
-        
-        self.verticalLayout_menuRecipe_4 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_menuRecipe_4.setObjectName("verticalLayout_menuRecipe_4")
-        self.label_recipeIngName_4 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName_4.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName_4.setSizePolicy(sizePolicy)
-        self.label_recipeIngName_4.setMinimumSize(QtCore.QSize(0, 50))
-        self.label_recipeIngName_4.setObjectName("label_recipeIngName_4")
-        self.verticalLayout_menuRecipe_4.addWidget(self.label_recipeIngName_4)
-        self.line_menuRecipe_4 = QtWidgets.QFrame(self.gridLayoutWidget_4)
-        self.line_menuRecipe_4.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_menuRecipe_4.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_menuRecipe_4.setObjectName("line_menuRecipe_4")
-        self.verticalLayout_menuRecipe_4.addWidget(self.line_menuRecipe_4)
-        self.label_recipeIng1_4 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIng1_4.setObjectName("label_recipeIng1_4")
-        self.verticalLayout_menuRecipe_4.addWidget(self.label_recipeIng1_4)
-        self.label_recipeIngDynamicLater_4 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater_4.setObjectName("label_recipeIngDynamicLater_4")
-        self.verticalLayout_menuRecipe_4.addWidget(self.label_recipeIngDynamicLater_4)
-        self.label_recipeIngDynamicLater2_4 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_recipeIngDynamicLater2_4.setObjectName("label_recipeIngDynamicLater2_4")
-        self.verticalLayout_menuRecipe_4.addWidget(self.label_recipeIngDynamicLater2_4)
-        self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_4, 1, 2, 1, 1)
+            numIng = 3
+
+            for j in range(numIng):
+                label_recipeIng = QtWidgets.QLabel(self.gridLayoutWidget_4)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(label_recipeIng.sizePolicy().hasHeightForWidth())
+                label_recipeIng.setSizePolicy(sizePolicy)
+                label_recipeIng.setMinimumSize(QtCore.QSize(0, 13))
+                label_recipeIng.setObjectName("label_recipeIng" + str(j + 1))
+                verticalLayout_menuRecipe.addWidget(label_recipeIng)
+                label_recipeIng.setText(_translate("B3GUI", "Ingredient " + str(j + 1)))
+          
+            self.gridLayout_menu.addLayout(verticalLayout_menuRecipe, int(i/2), int(2*(i%2)), 1, 1)
+
+            if (numRecipe == 1):
+                verticalLayout_menuRecipe = QtWidgets.QVBoxLayout()
+                verticalLayout_menuRecipe.setObjectName("verticalLayout_menuRecipe")
+                                                 
+                label_recipeName = QtWidgets.QLabel(self.gridLayoutWidget_4)                            
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(label_recipeName.sizePolicy().hasHeightForWidth())
+                label_recipeName.setSizePolicy(sizePolicy)
+                label_recipeName.setMinimumSize(QtCore.QSize(0, 199))
+                label_recipeName.setObjectName("label_recipeName")
+                label_recipeName.setText(_translate("B3GUI", " "))
+                verticalLayout_menuRecipe.addWidget(label_recipeName)
+
+                numIng = 3
+
+                for j in range(numIng):
+                    label_recipeIng = QtWidgets.QLabel(self.gridLayoutWidget_4)
+                    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+                    sizePolicy.setHorizontalStretch(0)
+                    sizePolicy.setVerticalStretch(0)
+                    sizePolicy.setHeightForWidth(label_recipeIng.sizePolicy().hasHeightForWidth())
+                    label_recipeIng.setSizePolicy(sizePolicy)
+                    label_recipeIng.setMinimumSize(QtCore.QSize(0, 13))
+                    label_recipeIng.setObjectName("label_recipeIng" + str(j + 1))
+                    verticalLayout_menuRecipe.addWidget(label_recipeIng)
+                    label_recipeIng.setText(_translate("B3GUI", " "))
+          
+            self.gridLayout_menu.addLayout(verticalLayout_menuRecipe, 0, 2, 1, 1)
         
         self.scrollArea_menu.setWidget(self.scrollArea_menuContents)
         
@@ -883,24 +847,30 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_advTools.setText(_translate("B3GUI", "Adv. \n"
 "Tools"))
         self.label_batteryCharge.setText(_translate("B3GUI", "Battery Charge"))
+
+
+        '''
         self.pushButton_pageToPrimary.setText(_translate("B3GUI", "Main Window"))
         self.pushButton_pageToCustom.setText(_translate("B3GUI", "Custom Order"))
-        self.label_recipeIngName.setText(_translate("B3GUI", "NameofDrink"))
+        self.label_recipeName.setText(_translate("B3GUI", "NameofDrink"))
         self.label_recipeIng1.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_2.setText(_translate("B3GUI", "NameofDrink"))
+        self.label_recipeName_2.setText(_translate("B3GUI", "NameofDrink"))
         self.label_recipeIng1_2.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_2.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_2.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_3.setText(_translate("B3GUI", "NameofDrink"))
+        self.label_recipeName_3.setText(_translate("B3GUI", "NameofDrink"))
         self.label_recipeIng1_3.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_3.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_3.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_4.setText(_translate("B3GUI", "NameofDrink"))
+        self.label_recipeName_4.setText(_translate("B3GUI", "NameofDrink"))
         self.label_recipeIng1_4.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_4.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_4.setText(_translate("B3GUI", "Ingredient 3"))
+'''
+
+        
         self.label_51.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_52.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_53.setText(_translate("B3GUI", "Ingredient 3"))

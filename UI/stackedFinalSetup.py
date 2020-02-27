@@ -6,133 +6,15 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
-import paho.mqtt.client as mqtt
-import sqlite3
-from sqlite3 import Error
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-client = None 
-MQTT_SERVER = "192.168.1.75"
-MQTT_SERVERP = "192.168.1.68"
-MQTT_SERVERC = "172.16.105.218"
-MQTT_SERVERC2 = "Core"
-MQTT_PORT = 1883
-MQTT_USERNAME = ""
-MQTT_PASSWORD = ""
-MQTT_ID = "application"
-BARORDER = "barOrder"
-BARINVA = "barInvA"
-BARINVB = "barInvB"
-SENSECONNACK = "senseConnack"
-SENSEDATA = "senseData"
 
-sqlConnect = None
-cursor = None
-
-bartenderACK = "bartenderACK"
-bartenderOrder = "bartenderOrder"
-butlerStatus = "butlerStatus"
-bartenderInventoryA = "bartenderInventoryA"
-bartenderInventoryB = "bartenderInventoryB"
-orderName = "Test Order 1"
-batteryCharge = "Battery Charge"
-configIng1Name = "Ing. A"
-configIng3Name = "Ing. C"
-configIng5Name = "Ing. E"
-configIng4Name = "Ing. D"
-configIng2Name = "Ing. B"
-currentOrderIng1Name = "Ingredient A"
-currentOrderIng2Name = "Ingredient B"
-currentOrderIng1Amount =  "300 mL"
-currentOrderIng2Amount = "45 mL"
-
-########################## MQTT SETUP ##########################
-
-def on_message(client, userdata, message):
-    print(message.topic+" "+str(message.payload))
-    msg = str(message.payload.decode("utf-8"))
-    print("message received: " , msg)
-    
-    if BARORDER in message.topic:
-        global bartenderOrder
-        bartenderOrder = msg
-    if message.topic == BARINVA:
-        global bartenderInventoryA
-        bartenderInventoryA = msg
-    if message.topic == BARINVB:
-        global bartenderInventoryB
-        bartenderInventoryB = msg
-
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str((rc+5)%10))
-    
-def placeOrder(self):
-    dummyOrder = "gimme something else"
-    client.publish("B3Order", dummyOrder, qos = 0, retain = False)
-    
-def subMQTT(self, subTopic):
-    global client
-    client.subscribe(subTopic, qos = 1)
-
-def initMQTT(self):
-    global client
-    client = mqtt.Client()
-        
-    client.on_message = on_message
-    client.on_connect = on_connect
-    client.connect(MQTT_SERVER, MQTT_PORT)
-    client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
-
-########################## SQLite3 SETUP ##########################
-
-def initSQL(self):
-    global sqlConnect
-    global cursor
-    sqlConnect = sqlite3.connect('B3_blackbook_v1.db')
-    cursor = sqlConnect.cursor()
-
-def insertSQL(self, tableName, columnName, values):
-    try:
-        cursor.execute("INSERT INTO " + str(tableName) + "(" + 
-                       str(columnName) + ") values(" + str(values) + ")")
-        print("Successfully inserted " + str(values) + 
-              " into table " + str(tableName))
-        sqlConnect.commit()
-    except Error as e:
-        print(e)
-    
-def closeSQL(connect):
-    try: 
-        print("SQL closed successfully")
-        connect.close()
-    except Error as e:
-        print(e)
-
-########################## MAIN UI ##########################
-
-class Ui_B3GUI(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("B3 GUI")
-        self.setGeometry(0, 0, 1024, 600)
-        #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
-        self.exit = QtWidgets.QDialog()
-
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        self.setPalette(palette)
-        
-        self.stackedWidget = QtWidgets.QStackedWidget(self)
+class Ui_B3GUI(object):
+    def setupUi(self, B3GUI):
+        B3GUI.setObjectName("B3GUI")
+        B3GUI.resize(1024, 600)
+        self.stackedWidget = QtWidgets.QStackedWidget(B3GUI)
         self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 1024, 600))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
@@ -155,14 +37,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
         self.stackedWidget.setPalette(palette)
         self.stackedWidget.setObjectName("stackedWidget")
-
-        self.setupPrimary()
-        self.show()
-    
-    def setupPrimary(self):
-
-        ##################### Page 1 #####################
-        
         self.page = QtWidgets.QWidget()
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
@@ -205,9 +79,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         font.setPointSize(60)
         self.pushButton_toMenu.setFont(font)
         self.pushButton_toMenu.setObjectName("pushButton_toMenu")
-
-        self.pushButton_toMenu.clicked.connect(self.toMenu)
-        
         self.progressBar_config_dynamicLater2 = QtWidgets.QProgressBar(self.page)
         self.progressBar_config_dynamicLater2.setGeometry(QtCore.QRect(890, 220, 118, 31))
         palette = QtGui.QPalette()
@@ -424,9 +295,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         font.setFamily("MathJax_Main")
         self.pushButton_quit.setFont(font)
         self.pushButton_quit.setObjectName("pushButton_quit")
-
-        self.pushButton_quit.clicked.connect(self.exitPopup)
-        
         self.label_config = QtWidgets.QLabel(self.page)
         self.label_config.setGeometry(QtCore.QRect(780, 140, 90, 28))
         font = QtGui.QFont()
@@ -612,25 +480,15 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.progressBar_config_dynamicLater4.raise_()
         self.label_curOrder_DynamicLaterName.raise_()
         self.pushButton_config.raise_()
-        
         self.stackedWidget.addWidget(self.page)
-
-        ##################### Page 2 #####################
-        
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
         self.pushButton_pageToPrimary = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToPrimary.setGeometry(QtCore.QRect(11, 441, 131, 111))
         self.pushButton_pageToPrimary.setObjectName("pushButton_pageToPrimary")
-
-        self.pushButton_pageToPrimary.clicked.connect(self.toPrimary)
-
         self.pushButton_pageToCustom = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToCustom.setGeometry(QtCore.QRect(11, 311, 131, 111))
         self.pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
-
-        self.pushButton_pageToCustom.clicked.connect(self.toCustom)
-
         self.scrollArea_menu = QtWidgets.QScrollArea(self.page_2)
         self.scrollArea_menu.setGeometry(QtCore.QRect(150, 20, 721, 561))
         self.scrollArea_menu.setWidgetResizable(True)
@@ -654,6 +512,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         sizePolicy.setHeightForWidth(self.label_recipeIngName.sizePolicy().hasHeightForWidth())
         self.label_recipeIngName.setSizePolicy(sizePolicy)
         self.label_recipeIngName.setMinimumSize(QtCore.QSize(0, 50))
+        self.label_recipeIngName.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.label_recipeIngName.setObjectName("label_recipeIngName")
         self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngName)
         self.line_menuRecipe = QtWidgets.QFrame(self.gridLayoutWidget_4)
@@ -671,14 +530,10 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_recipeIngDynamicLater2.setObjectName("label_recipeIngDynamicLater2")
         self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngDynamicLater2)
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe, 0, 0, 1, 1)
-
-        
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_menu.addItem(spacerItem, 0, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_menu.addItem(spacerItem1, 1, 1, 1, 1)
-
-        
         self.verticalLayout_menuRecipe_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_2.setObjectName("verticalLayout_menuRecipe_2")
         self.label_recipeIngName_2 = QtWidgets.QLabel(self.gridLayoutWidget_4)
@@ -705,8 +560,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_recipeIngDynamicLater2_2.setObjectName("label_recipeIngDynamicLater2_2")
         self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIngDynamicLater2_2)
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_2, 0, 2, 1, 1)
-
-        
         self.verticalLayout_menuRecipe_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_3.setObjectName("verticalLayout_menuRecipe_3")
         self.label_recipeIngName_3 = QtWidgets.QLabel(self.gridLayoutWidget_4)
@@ -733,8 +586,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_recipeIngDynamicLater2_3.setObjectName("label_recipeIngDynamicLater2_3")
         self.verticalLayout_menuRecipe_3.addWidget(self.label_recipeIngDynamicLater2_3)
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_3, 1, 0, 1, 1)
-
-        
         self.verticalLayout_menuRecipe_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_4.setObjectName("verticalLayout_menuRecipe_4")
         self.label_recipeIngName_4 = QtWidgets.QLabel(self.gridLayoutWidget_4)
@@ -761,13 +612,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_recipeIngDynamicLater2_4.setObjectName("label_recipeIngDynamicLater2_4")
         self.verticalLayout_menuRecipe_4.addWidget(self.label_recipeIngDynamicLater2_4)
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_4, 1, 2, 1, 1)
-        
         self.scrollArea_menu.setWidget(self.scrollArea_menuContents)
-        
         self.stackedWidget.addWidget(self.page_2)
-
-        ##################### Page 3 #####################
-
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setObjectName("page_3")
         self.widget_3 = QtWidgets.QWidget(self.page_3)
@@ -787,8 +633,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.gridLayout_custom = QtWidgets.QGridLayout(self.gridLayoutWidget_6)
         self.gridLayout_custom.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_custom.setObjectName("gridLayout_custom")
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_custom.addItem(spacerItem1, 0, 1, 1, 1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_custom.addItem(spacerItem2, 0, 1, 1, 1)
         self.gridLayout_customRecipe = QtWidgets.QGridLayout()
         self.gridLayout_customRecipe.setObjectName("gridLayout_customRecipe")
         self.label_51 = QtWidgets.QLabel(self.gridLayoutWidget_6)
@@ -845,24 +691,19 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_pageToMenu2 = QtWidgets.QPushButton(self.page_3)
         self.pushButton_pageToMenu2.setGeometry(QtCore.QRect(11, 311, 131, 111))
         self.pushButton_pageToMenu2.setObjectName("pushButton_pageToMenu2")
-        
-        self.pushButton_pageToMenu2.clicked.connect(self.toMenu)
-
         self.pushButton_pageToPrimary2 = QtWidgets.QPushButton(self.page_3)
         self.pushButton_pageToPrimary2.setGeometry(QtCore.QRect(11, 441, 131, 111))
         self.pushButton_pageToPrimary2.setObjectName("pushButton_pageToPrimary2")
-
-        self.pushButton_pageToPrimary2.clicked.connect(self.toPrimary)
-
         self.stackedWidget.addWidget(self.page_3)
 
-        self.retranslateUi()
-        self.stackedWidget.setCurrentIndex(0)
-        #QtCore.QMetaObject.connectSlotsByName(self)
+        self.retranslateUi(B3GUI)
+        self.stackedWidget.setCurrentIndex(1)
+        self.pushButton_toMenu.clicked.connect(self.stackedWidget.update)
+        QtCore.QMetaObject.connectSlotsByName(B3GUI)
 
-    def retranslateUi(self):
+    def retranslateUi(self, B3GUI):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("B3GUI", "B3GUI"))
+        B3GUI.setWindowTitle(_translate("B3GUI", "Form"))
         self.pushButton_config.setText(_translate("B3GUI", "Drink\n"
 "Configuration"))
         self.pushButton_toMenu.setText(_translate("B3GUI", "Menu"))
@@ -911,90 +752,3 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_58.setText(_translate("B3GUI", "This is not currently finalized"))
         self.pushButton_pageToMenu2.setText(_translate("B3GUI", "Menu"))
         self.pushButton_pageToPrimary2.setText(_translate("B3GUI", "Main Window"))
-
-    def toMenu(self):
-        self.stackedWidget.setCurrentIndex(1)
-
-    def toCustom(self):
-        self.stackedWidget.setCurrentIndex(2)
-
-    def toPrimary(self):
-        self.stackedWidget.setCurrentIndex(0)
-
-
-    def exitPopup(self):
-        self.exit.setObjectName("ExitWindow")
-        self.exit.setGeometry(332, 350, 360, 150)
-        self.exitLayout = QtWidgets.QGridLayout()
-
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        self.exit.setPalette(palette)
-        
-        self.exitDialog = QtWidgets.QDialogButtonBox(self.exit)
-        self.exitDialog.setGeometry(QtCore.QRect(90, 110, 180, 32))
-        
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.exitDialog.sizePolicy().hasHeightForWidth())
-        
-        self.exitDialog.setSizePolicy(sizePolicy)
-        self.exitDialog.setOrientation(QtCore.Qt.Horizontal)
-        self.exitDialog.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-        self.exitDialog.setCenterButtons(True)
-        self.exitDialog.setObjectName("buttonBox")
-        self.exitLabel = QtWidgets.QLabel(self.exit)
-        self.exitLabel.setGeometry(QtCore.QRect(105, 30, 161, 71))
-        self.exitLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.exitLabel.setWordWrap(True)
-        self.exitLabel.setObjectName("label")
-
-        self.retranslateExit()
-        self.exitDialog.accepted.connect(self.killUi)
-        self.exitDialog.rejected.connect(self.exit.destroy)
-
-        self.exitLayout.addWidget(self.exitLabel, 0, 0)
-        self.exitLayout.addWidget(self.exitDialog, 1, 0)
-        self.exit.setLayout(self.exitLayout)
-
-        self.exit.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        
-        self.exit.show()
-
-    def killUi(self):
-        #self.exit.getdfsdfogjh()
-        self.exit.destroy()
-        closeSQL(sqlConnect)
-        QtCore.QCoreApplication.instance().quit
-        sys.exit()
-
-    def retranslateExit(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.exit.setWindowTitle(_translate("ExitWindow", "Dialog"))
-        self.exitLabel.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
-
-def main():
-    initMQTT(client)
-    initSQL(sqlConnect)
-    
-    application = QtWidgets.QApplication(sys.argv)
-    application.setStyle('Fusion')
-    window = Ui_B3GUI()
-
-    client.loop_start()
-
-    sys.exit(application.exec_())
-
-if __name__ == '__main__':
-    #try:
-    main()
