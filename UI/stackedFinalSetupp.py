@@ -7,7 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 import sys
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -485,14 +484,16 @@ class Ui_B3GUI(object):
 
 
 
-#################################################
-
         
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
         self.pushButton_pageToPrimary = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToPrimary.setGeometry(QtCore.QRect(11, 441, 131, 111))
         self.pushButton_pageToPrimary.setObjectName("pushButton_pageToPrimary")
+
+        self.pushButton_pageToPrimary.clicked.connect(self.mainw)
+
+        
         self.pushButton_pageToCustom = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToCustom.setGeometry(QtCore.QRect(11, 311, 131, 111))
         self.pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
@@ -882,6 +883,7 @@ class Ui_B3GUI(object):
         self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIngDynamicLater2_2)
         self.gridLayout_menu_2.addLayout(self.verticalLayout_menuRecipe_2, 0, 0, 1, 1)
         self.stackedWidget_2.addWidget(self.page_5)
+        
         self.pushButton_2 = QtWidgets.QPushButton(self.page_2)
         self.pushButton_2.setGeometry(QtCore.QRect(525, 19, 347, 211))
         self.pushButton_2.setObjectName("pushButton_2")
@@ -891,23 +893,21 @@ class Ui_B3GUI(object):
         self.pushButton_4 = QtWidgets.QPushButton(self.page_2)
         self.pushButton_4.setGeometry(QtCore.QRect(525, 292, 347, 211))
         self.pushButton_4.setObjectName("pushButton_4")
+        self.pushButton_2.raise_()
+        self.pushButton_3.raise_()
+        self.pushButton.raise_()
         self.pushButton_pageToPrimary.raise_()
         self.pushButton_pageToCustom.raise_()
         self.stackedWidget_2.raise_()
-        self.pushButton.raise_()
-        self.pushButton_3.raise_()
         self.pushButton_4.raise_()
-        self.pushButton_2.raise_()
 
         self.pushButton_4.clicked.connect(self.doSomething)
-        self.pushButton_pageToPrimary.clicked.connect(self.mainw)
         self.pushButton_4.isFlat()
 
         
         self.stackedWidget.addWidget(self.page_2)
 
 
-##################
 
         
         self.page_3 = QtWidgets.QWidget()
@@ -998,7 +998,6 @@ class Ui_B3GUI(object):
         self.pushButton_toMenu.clicked.connect(self.stackedWidget.update)
         QtCore.QMetaObject.connectSlotsByName(B3GUI)
 
-        
     def doSomething(self):
         _translate = QtCore.QCoreApplication.translate
         self.pushButton_4.setText(_translate("B3GUI", "PushButton"))
@@ -1081,7 +1080,6 @@ class Ui_B3GUI(object):
         self.pushButton_pageToMenu2.setText(_translate("B3GUI", "Menu"))
         self.pushButton_pageToPrimary2.setText(_translate("B3GUI", "Main Window"))
 
-        
                 
 try:
     application = QtWidgets.QApplication(sys.argv)
