@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -490,23 +490,16 @@ class Ui_B3GUI(object):
         self.pushButton_pageToPrimary = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToPrimary.setGeometry(QtCore.QRect(11, 441, 131, 111))
         self.pushButton_pageToPrimary.setObjectName("pushButton_pageToPrimary")
-
-        self.pushButton_pageToPrimary.clicked.connect(self.mainw)
-
-        
         self.pushButton_pageToCustom = QtWidgets.QPushButton(self.page_2)
         self.pushButton_pageToCustom.setGeometry(QtCore.QRect(11, 311, 131, 111))
         self.pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
-        self.pushButton = QtWidgets.QPushButton(self.page_2)
-        self.pushButton.setGeometry(QtCore.QRect(149, 19, 347, 211))
-        self.pushButton.setObjectName("pushButton")
         self.stackedWidget_2 = QtWidgets.QStackedWidget(self.page_2)
-        self.stackedWidget_2.setGeometry(QtCore.QRect(150, 20, 721, 561))
+        self.stackedWidget_2.setGeometry(QtCore.QRect(150, 20, 721, 521))
         self.stackedWidget_2.setObjectName("stackedWidget_2")
         self.page_4 = QtWidgets.QWidget()
         self.page_4.setObjectName("page_4")
         self.gridLayoutWidget_4 = QtWidgets.QWidget(self.page_4)
-        self.gridLayoutWidget_4.setGeometry(QtCore.QRect(0, 0, 721, 542))
+        self.gridLayoutWidget_4.setGeometry(QtCore.QRect(0, 0, 721, 521))
         self.gridLayoutWidget_4.setObjectName("gridLayoutWidget_4")
         self.gridLayout_menu = QtWidgets.QGridLayout(self.gridLayoutWidget_4)
         self.gridLayout_menu.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
@@ -514,15 +507,15 @@ class Ui_B3GUI(object):
         self.gridLayout_menu.setObjectName("gridLayout_menu")
         self.verticalLayout_menuRecipe_11 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_11.setObjectName("verticalLayout_menuRecipe_11")
-        self.label_recipeIngName_11 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        self.pushButton_2 = QtWidgets.QPushButton(self.gridLayoutWidget_4)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName_11.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName_11.setSizePolicy(sizePolicy)
-        self.label_recipeIngName_11.setMinimumSize(QtCore.QSize(0, 199))
-        self.label_recipeIngName_11.setObjectName("label_recipeIngName_11")
-        self.verticalLayout_menuRecipe_11.addWidget(self.label_recipeIngName_11)
+        sizePolicy.setHeightForWidth(self.pushButton_2.sizePolicy().hasHeightForWidth())
+        self.pushButton_2.setSizePolicy(sizePolicy)
+        self.pushButton_2.setFlat(True)
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.verticalLayout_menuRecipe_11.addWidget(self.pushButton_2)
         self.line_menuRecipe_11 = QtWidgets.QFrame(self.gridLayoutWidget_4)
         self.line_menuRecipe_11.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_menuRecipe_11.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -562,15 +555,15 @@ class Ui_B3GUI(object):
         self.gridLayout_menu.addItem(spacerItem1, 1, 1, 1, 1)
         self.verticalLayout_menuRecipe_10 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_10.setObjectName("verticalLayout_menuRecipe_10")
-        self.label_recipeIngName_10 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        self.pushButton_4 = QtWidgets.QPushButton(self.gridLayoutWidget_4)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName_10.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName_10.setSizePolicy(sizePolicy)
-        self.label_recipeIngName_10.setMinimumSize(QtCore.QSize(0, 199))
-        self.label_recipeIngName_10.setObjectName("label_recipeIngName_10")
-        self.verticalLayout_menuRecipe_10.addWidget(self.label_recipeIngName_10)
+        sizePolicy.setHeightForWidth(self.pushButton_4.sizePolicy().hasHeightForWidth())
+        self.pushButton_4.setSizePolicy(sizePolicy)
+        self.pushButton_4.setFlat(True)
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.verticalLayout_menuRecipe_10.addWidget(self.pushButton_4)
         self.line_menuRecipe_10 = QtWidgets.QFrame(self.gridLayoutWidget_4)
         self.line_menuRecipe_10.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_menuRecipe_10.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -606,15 +599,15 @@ class Ui_B3GUI(object):
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_10, 0, 2, 1, 1)
         self.verticalLayout_menuRecipe_12 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_12.setObjectName("verticalLayout_menuRecipe_12")
-        self.label_recipeIngName_12 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        self.pushButton = QtWidgets.QPushButton(self.gridLayoutWidget_4)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName_12.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName_12.setSizePolicy(sizePolicy)
-        self.label_recipeIngName_12.setMinimumSize(QtCore.QSize(0, 199))
-        self.label_recipeIngName_12.setObjectName("label_recipeIngName_12")
-        self.verticalLayout_menuRecipe_12.addWidget(self.label_recipeIngName_12)
+        sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
+        self.pushButton.setSizePolicy(sizePolicy)
+        self.pushButton.setFlat(True)
+        self.pushButton.setObjectName("pushButton")
+        self.verticalLayout_menuRecipe_12.addWidget(self.pushButton)
         self.line_menuRecipe_12 = QtWidgets.QFrame(self.gridLayoutWidget_4)
         self.line_menuRecipe_12.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_menuRecipe_12.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -650,15 +643,15 @@ class Ui_B3GUI(object):
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_12, 1, 2, 1, 1)
         self.verticalLayout_menuRecipe = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe.setObjectName("verticalLayout_menuRecipe")
-        self.label_recipeIngName = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        self.pushButton_3 = QtWidgets.QPushButton(self.gridLayoutWidget_4)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_recipeIngName.sizePolicy().hasHeightForWidth())
-        self.label_recipeIngName.setSizePolicy(sizePolicy)
-        self.label_recipeIngName.setMinimumSize(QtCore.QSize(0, 199))
-        self.label_recipeIngName.setObjectName("label_recipeIngName")
-        self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngName)
+        sizePolicy.setHeightForWidth(self.pushButton_3.sizePolicy().hasHeightForWidth())
+        self.pushButton_3.setSizePolicy(sizePolicy)
+        self.pushButton_3.setFlat(True)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.verticalLayout_menuRecipe.addWidget(self.pushButton_3)
         self.line_menuRecipe = QtWidgets.QFrame(self.gridLayoutWidget_4)
         self.line_menuRecipe.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_menuRecipe.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -693,6 +686,8 @@ class Ui_B3GUI(object):
         self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngDynamicLater2)
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe, 0, 0, 1, 1)
         self.stackedWidget_2.addWidget(self.page_4)
+
+        
         self.page_5 = QtWidgets.QWidget()
         self.page_5.setObjectName("page_5")
         self.gridLayoutWidget_5 = QtWidgets.QWidget(self.page_5)
@@ -883,31 +878,18 @@ class Ui_B3GUI(object):
         self.verticalLayout_menuRecipe_2.addWidget(self.label_recipeIngDynamicLater2_2)
         self.gridLayout_menu_2.addLayout(self.verticalLayout_menuRecipe_2, 0, 0, 1, 1)
         self.stackedWidget_2.addWidget(self.page_5)
-        
-        self.pushButton_2 = QtWidgets.QPushButton(self.page_2)
-        self.pushButton_2.setGeometry(QtCore.QRect(525, 19, 347, 211))
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_3 = QtWidgets.QPushButton(self.page_2)
-        self.pushButton_3.setGeometry(QtCore.QRect(149, 292, 347, 211))
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_4 = QtWidgets.QPushButton(self.page_2)
-        self.pushButton_4.setGeometry(QtCore.QRect(525, 292, 347, 211))
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.pushButton_2.raise_()
-        self.pushButton_3.raise_()
-        self.pushButton.raise_()
-        self.pushButton_pageToPrimary.raise_()
-        self.pushButton_pageToCustom.raise_()
-        self.stackedWidget_2.raise_()
-        self.pushButton_4.raise_()
+        self.pushButton_menuLeft = QtWidgets.QPushButton(self.page_2)
+        self.pushButton_menuLeft.setGeometry(QtCore.QRect(300, 550, 121, 41))
+        self.pushButton_menuLeft.setObjectName("pushButton_menuLeft")
+        self.pushButton_menuRight = QtWidgets.QPushButton(self.page_2)
+        self.pushButton_menuRight.setGeometry(QtCore.QRect(600, 550, 121, 41))
+        self.pushButton_menuRight.setObjectName("pushButton_menuRight")
 
-        self.pushButton_4.clicked.connect(self.doSomething)
-        self.pushButton_4.isFlat()
 
-        
         self.stackedWidget.addWidget(self.page_2)
 
 
+####
 
         
         self.page_3 = QtWidgets.QWidget()
@@ -998,16 +980,6 @@ class Ui_B3GUI(object):
         self.pushButton_toMenu.clicked.connect(self.stackedWidget.update)
         QtCore.QMetaObject.connectSlotsByName(B3GUI)
 
-    def doSomething(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.pushButton_4.setText(_translate("B3GUI", "PushButton"))
-        print("fuck me")
-
-    def mainw(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.pushButton_pageToPrimary.setText(_translate("B3GUI", "Main Window"))
-        print("fuck my main")
-
     def retranslateUi(self, B3GUI):
         _translate = QtCore.QCoreApplication.translate
         B3GUI.setWindowTitle(_translate("B3GUI", "Form"))
@@ -1033,20 +1005,19 @@ class Ui_B3GUI(object):
         self.label_batteryCharge.setText(_translate("B3GUI", "Battery Charge"))
         self.pushButton_pageToPrimary.setText(_translate("B3GUI", "Main Window"))
         self.pushButton_pageToCustom.setText(_translate("B3GUI", "Custom Order"))
-        self.pushButton.setText(_translate("B3GUI", "PushButton"))
-        self.label_recipeIngName_11.setText(_translate("B3GUI", "NameofDrink"))
+        self.pushButton_2.setText(_translate("B3GUI", "Name of Drink"))
         self.label_recipeIng1_11.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_11.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_11.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_10.setText(_translate("B3GUI", "NameofDrink"))
+        self.pushButton_4.setText(_translate("B3GUI", "Name of Drink"))
         self.label_recipeIng1_10.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_10.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_10.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_12.setText(_translate("B3GUI", "NameofDrink"))
+        self.pushButton.setText(_translate("B3GUI", "Name of Drink"))
         self.label_recipeIng1_12.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_12.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_12.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName.setText(_translate("B3GUI", "NameofDrink"))
+        self.pushButton_3.setText(_translate("B3GUI", "Name of Drink"))
         self.label_recipeIng1.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2.setText(_translate("B3GUI", "Ingredient 3"))
@@ -1066,9 +1037,8 @@ class Ui_B3GUI(object):
         self.label_recipeIng1_2.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_recipeIngDynamicLater_2.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_recipeIngDynamicLater2_2.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton_2.setText(_translate("B3GUI", "PushButton"))
-        self.pushButton_3.setText(_translate("B3GUI", "PushButton"))
-        self.pushButton_4.setText(_translate("B3GUI", "PushButton"))
+        self.pushButton_menuLeft.setText(_translate("B3GUI", "<-------"))
+        self.pushButton_menuRight.setText(_translate("B3GUI", "------->"))
         self.label_51.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_52.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_53.setText(_translate("B3GUI", "Ingredient 3"))
@@ -1079,18 +1049,3 @@ class Ui_B3GUI(object):
         self.label_58.setText(_translate("B3GUI", "This is not currently finalized"))
         self.pushButton_pageToMenu2.setText(_translate("B3GUI", "Menu"))
         self.pushButton_pageToPrimary2.setText(_translate("B3GUI", "Main Window"))
-
-                
-try:
-    application = QtWidgets.QApplication(sys.argv)
-    application.setStyle('Fusion')
-    
-    main = QtWidgets.QWidget()
-    window = Ui_B3GUI()
-    window.setupUi(main)
-    main.show()
-    
-    sys.exit(application.exec_())
-    
-except Exception as e:
-    sys.stderr.write("Error: {0}".format(e))

@@ -1438,6 +1438,9 @@ Tools</string>
        <height>521</height>
       </rect>
      </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -2212,7 +2215,7 @@ Tools</string>
       </widget>
      </widget>
     </widget>
-    <widget class="QPushButton" name="pushButton_pageToCustom_2">
+    <widget class="QPushButton" name="pushButton_menuLeft">
      <property name="geometry">
       <rect>
        <x>300</x>
@@ -2225,7 +2228,7 @@ Tools</string>
       <string>&lt;-------</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_pageToCustom_3">
+    <widget class="QPushButton" name="pushButton_menuRight">
      <property name="geometry">
       <rect>
        <x>600</x>
