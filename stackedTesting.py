@@ -14,8 +14,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
 MQTT_SERVER = "192.168.1.75"
-MQTT_SERVERP = "192.168.1.68"
-MQTT_SERVERC2 = "172.16.105.218"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
@@ -81,7 +79,7 @@ def initMQTT(self):
         
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(MQTT_SERVERC, MQTT_PORT)
+    client.connect(MQTT_SERVER, MQTT_PORT)
     client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 
 ########################## SQLite3 SETUP ##########################
@@ -102,10 +100,11 @@ def insertSQL(self, tableName, columnName, values):
     except Error as e:
         print(e)
 
-def fetchSQL(self, table, column, condition):
+def fetchSQL(self, table, column, condtional, condition):
     try:
         cursor.execute('SELECT * FROM ' + str(table) + ' WHERE ' + 
-                       str(column) + ' = \'' + str(condition) + '\'')
+                       str(column) + str(condtional) +
+                       '\'' + str(condition) + '\'')
         value = cursor.fetchall()
         return value
     except Error as e:
@@ -638,6 +637,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_pageToCustom = QtWidgets.QPushButton(self.page_menuWindow)
         self.pushButton_pageToCustom.setGeometry(QtCore.QRect(11, 311, 131, 111))
         self.pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
+        
         self.stackedWidget_2 = QtWidgets.QStackedWidget(self.page_menuWindow)
         self.stackedWidget_2.setGeometry(QtCore.QRect(150, 20, 721, 521))
         self.stackedWidget_2.setObjectName("stackedWidget_2")
@@ -653,6 +653,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.gridLayout_menu.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.gridLayout_menu.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_menu.setObjectName("gridLayout_menu")
+
+        
         self.verticalLayout_menuRecipe_11 = QtWidgets.QVBoxLayout()
         self.verticalLayout_menuRecipe_11.setObjectName("verticalLayout_menuRecipe_11")
         self.pushButton_2 = QtWidgets.QPushButton(self.gridLayoutWidget_4)
@@ -834,7 +836,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.verticalLayout_menuRecipe.addWidget(self.label_recipeIngDynamicLater2)
         self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe, 0, 0, 1, 1)
 
-        self.pushButton.clicked.connect(self.sendOrder)
+        self.pushButton.clicked.connect(self.generateMenu)
         self.pushButton_2.clicked.connect(self.sendOrder)
         self.pushButton_3.clicked.connect(self.sendOrder)
         self.pushButton_4.clicked.connect(self.sendOrder)
@@ -1219,6 +1221,92 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def generateMenu(self):
         print("generate menu")
+        menuRaw = fetchSQL(cursor, 'menu', 'id_start', '>', 0)
+
+        stackedWidget = QtWidgets.QStackedWidget(self.page_menuWindow)
+        stackedWidget.setGeometry(QtCore.QRect(150, 20, 721, 521))
+        stackedWidget.setObjectName("stackedWidget_menu")
+        stackedWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
+
+        '''
+        self.page_menu1 = QtWidgets.QWidget()
+        self.page_menu1.setObjectName("page_menu1")
+        self.gridLayoutWidget_4 = QtWidgets.QWidget(self.page_menu1)
+        self.gridLayoutWidget_4.setGeometry(QtCore.QRect(0, 0, 721, 521))
+        self.gridLayoutWidget_4.setObjectName("gridLayoutWidget_4")
+        self.gridLayout_menu = QtWidgets.QGridLayout(self.gridLayoutWidget_4)
+        self.gridLayout_menu.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
+        self.gridLayout_menu.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_menu.setObjectName("gridLayout_menu")'''
+
+        menuItem = None
+        menuName = None
+        menuCount = 0
+        for i in menuRaw:
+            presentFlag = 1
+            for j in range(0,i[2]):
+                ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
+                test = fetchSQL(cursor, 'config', 'ingredient_name', '=', ing[0][3])
+                if test == []:
+                    presentFlag = 0
+                    print('   ERROR: Ingredient \'' + str(ing[0][3]) + '\' not present in configuration.')
+                    break
+            if presentFlag == 1:
+                if menuCount%4 == 0:
+                    print('please no')
+
+
+
+                '''
+                menuItem = QtWidgets.QVBoxLayout()
+                menuItem.setObjectName(str(menuName))
+                pushButton= QtWidgets.QPushButton(self.gridLayoutWidget_4)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(self.pushButton_2.sizePolicy().hasHeightForWidth())
+                self.pushButton_2.setSizePolicy(sizePolicy)
+                self.pushButton_2.setFlat(True)
+                self.pushButton_2.setObjectName("pushButton_2")
+                self.verticalLayout_menuRecipe_11.addWidget(self.pushButton_2)
+                self.line_menuRecipe_11 = QtWidgets.QFrame(self.gridLayoutWidget_4)
+                self.line_menuRecipe_11.setFrameShape(QtWidgets.QFrame.HLine)
+                self.line_menuRecipe_11.setFrameShadow(QtWidgets.QFrame.Sunken)
+                self.line_menuRecipe_11.setObjectName("line_menuRecipe_11")
+                self.verticalLayout_menuRecipe_11.addWidget(self.line_menuRecipe_11)
+                self.label_recipeIng1_11 = QtWidgets.QLabel(self.gridLayoutWidget_4)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(self.label_recipeIng1_11.sizePolicy().hasHeightForWidth())
+                self.label_recipeIng1_11.setSizePolicy(sizePolicy)
+                self.label_recipeIng1_11.setMinimumSize(QtCore.QSize(0, 13))
+                self.label_recipeIng1_11.setObjectName("label_recipeIng1_11")
+                self.verticalLayout_menuRecipe_11.addWidget(self.label_recipeIng1_11)
+                self.label_recipeIngDynamicLater_11 = QtWidgets.QLabel(self.gridLayoutWidget_4)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(self.label_recipeIngDynamicLater_11.sizePolicy().hasHeightForWidth())
+                self.label_recipeIngDynamicLater_11.setSizePolicy(sizePolicy)
+                self.label_recipeIngDynamicLater_11.setMinimumSize(QtCore.QSize(0, 13))
+                self.label_recipeIngDynamicLater_11.setObjectName("label_recipeIngDynamicLater_11")
+                self.verticalLayout_menuRecipe_11.addWidget(self.label_recipeIngDynamicLater_11)
+                self.label_recipeIngDynamicLater2_11 = QtWidgets.QLabel(self.gridLayoutWidget_4)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(self.label_recipeIngDynamicLater2_11.sizePolicy().hasHeightForWidth())
+                self.label_recipeIngDynamicLater2_11.setSizePolicy(sizePolicy)
+                self.label_recipeIngDynamicLater2_11.setMinimumSize(QtCore.QSize(0, 13))
+                self.label_recipeIngDynamicLater2_11.setObjectName("label_recipeIngDynamicLater2_11")
+                self.verticalLayout_menuRecipe_11.addWidget(self.label_recipeIngDynamicLater2_11)
+                self.gridLayout_menu.addLayout(self.verticalLayout_menuRecipe_11, 1, 0, 1, 1)
+                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                self.gridLayout_menu.addItem(spacerItem, 0, 1, 1, 1)
+                spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                self.gridLayout_menu.addItem(spacerItem1, 1, 1, 1, 1)'''
+
 
     def displayMenu(self):
         print("display menu")
@@ -1227,10 +1315,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         sender = self.sender()
         orderName = sender.text()
         print(orderName)
-        orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', orderName)
+        orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
+        print(orderRaw)
         order = ()
         for i in orderRaw:
-            pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', i[3])
+            pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
             temp = order + (pumpConfig[0][0], i[4])
             order = temp
         print(order)
