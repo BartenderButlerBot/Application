@@ -6,81 +6,106 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
+import sys, time
 import paho.mqtt.client as mqtt
 import sqlite3
 from sqlite3 import Error
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
-MQTT_SERVER = "192.168.1.82"
+MQTT_SERVER = "192.168.1.78"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
 MQTT_PASSWORD = ""
 MQTT_ID = "application"
-BARORDER = "barOrder"
-BARINVA = "barInvA"
-BARINVB = "barInvB"
-SENSECONNACK = "senseConnack"
-SENSEDATA = "senseData"
 
 sqlConnect = None
 cursor = None
 
-bartenderACK = "bartenderACK"
-bartenderOrder = "bartenderOrder"
+#### TOPICS ####
+ORDER = "app/order"
+DOCK = "app/emergencyDock"
+BARTSTATUS = "bart/status"
+SENSORLOAD = "alfred/sensorLoad"
+
+#### FLAGS  ####
+cupPresent = False
+bartConnected = "disconnected"
+bartOrder = ""
+
 butlerStatus = "butlerStatus"
-bartenderInventoryA = "bartenderInventoryA"
-bartenderInventoryB = "bartenderInventoryB"
-orderName = "Test Order 1"
-batteryCharge = "Battery Charge"
-configIng1Name = "Ing. A"
-configIng3Name = "Ing. C"
-configIng5Name = "Ing. E"
-configIng4Name = "Ing. D"
-configIng2Name = "Ing. B"
-currentOrderIng1Name = "Ingredient A"
-currentOrderIng2Name = "Ingredient B"
-currentOrderIng1Amount =  "300 mL"
-currentOrderIng2Amount = "45 mL"
+batteryCharge = 100
+bartAligned = None
+
+
 
 ########################## MQTT SETUP ##########################
-
-def on_message(client, userdata, message):
-    print(message.topic+" "+str(message.payload))
-    msg = str(message.payload.decode("utf-8"))
-    print("message received: " , msg)
     
-    if BARORDER in message.topic:
+def on_message(client, userdata, message):
+    #print(message.topic+" "+str(message.payload))
+    msg = str(message.payload.decode("utf-8"))
+    print("~~MQTT~~ Received message \"" + msg + "\" from topic \"" + message.topic + "\".")
+
+    if message.topic == ORDER:
         global bartenderOrder
         bartenderOrder = msg
-    if message.topic == BARINVA:
-        global bartenderInventoryA
-        bartenderInventoryA = msg
-    if message.topic == BARINVB:
-        global bartenderInventoryB
-        bartenderInventoryB = msg
+        print("order topic test")
+        
+    if message.topic == SENSORLOAD:
+        global cupPresent
+        if float(msg) > 1:
+            cupPresent = True
+        #will need to reformat based off output from Alfred
+            
+    if message.topic == BARTSTATUS:
+        print(msg)
+        global bartConnected
+        bartConnected = msg
+        
+        
+    
+def on_connect(client, userdata, flags, rc): #do this when connecting to mqtt broker
+    print("~~MQTT~~ Connected with result code "+ str(rc) + ".")
+    client.connected_flag = True
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("~~MQTT~~ Unexpected broker disconnection.")
+    else:
+        print("~~MQTT~~ Successfully disconnected.")
     
 def subMQTT(self, subTopic):
     global client
-    client.subscribe(subTopic, qos = 1)
+    client.subscribe(subTopic, qos = 2)
 
 def pubMQTT(self, subTopic, message):
     global client
-    client.publish(subTopic, str(message), qos = 1)
+    client.publish(subTopic, str(message), qos = 2)
+    print("~~MQTT~~ Sent message \"" + str(message) + "\" to topic \"" + subTopic + "\".")
 
 def initMQTT(self):
     global client
+    mqtt.Client.connected_flag=False
     client = mqtt.Client()
+    
         
-    client.on_message = on_message
-    client.on_connect = on_connect
-    client.connect(MQTT_SERVER, MQTT_PORT)
-    client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
+    client.on_message = on_message #connect custom on message function to on message event
+    client.on_connect = on_connect #connect custom on connect function to on connect event
+    client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
+
+    client.loop_start()
+    print("~~MQTT~~ Attempting broker connection:  ", MQTT_SERVER)
+    
+    client.connect("192.168.1.78")
+    
+    while not client.connected_flag: #wait in loop
+        time.sleep(1)
+        if client.connected_flag != True:
+            print("~~MQTT~~ Connecting...")
+
+    print("~~MQTT~~ Initialized.")
+    client.subscribe([(ORDER, 2),(SENSORLOAD, 1), (BARTSTATUS, 2)])
 
 ########################## SQLite3 SETUP ##########################
 
@@ -89,6 +114,7 @@ def initSQL(self):
     global cursor
     sqlConnect = sqlite3.connect('B3_blackbook_v1.db')
     cursor = sqlConnect.cursor()
+    print("~~SQL~~ Initialized.")
 
 def insertSQL(self, tableName, columnName, values):
     try:
@@ -112,7 +138,7 @@ def fetchSQL(self, table, column, condtional, condition):
     
 def closeSQL(connect):
     try: 
-        print("SQL closed successfully")
+        print("~~SQL~~ Closed successfully.")
         connect.close()
     except Error as e:
         print(e)
@@ -122,6 +148,7 @@ def closeSQL(connect):
 class Ui_B3GUI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        self.randomCounter = 0
         self.setWindowTitle("B3 GUI")
         self.setGeometry(0, 0, 1024, 600)
         #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
@@ -315,9 +342,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
-        self.label_curOrder_DynamicLaterName = QtWidgets.QLabel(self.page)
-        self.label_curOrder_DynamicLaterName.setGeometry(QtCore.QRect(380, 420, 121, 28))
-        self.label_curOrder_DynamicLaterName.setObjectName("label_curOrder_DynamicLaterName")
         self.label_config_dynamicLater1 = QtWidgets.QLabel(self.page)
         self.label_config_dynamicLater1.setGeometry(QtCore.QRect(780, 180, 90, 28))
         font = QtGui.QFont()
@@ -380,7 +404,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_config_dynamicLater4.setFont(font)
         self.label_config_dynamicLater4.setObjectName("label_config_dynamicLater4")
         self.label_curOrder_IngAmount = QtWidgets.QLabel(self.page)
-        self.label_curOrder_IngAmount.setGeometry(QtCore.QRect(560, 390, 90, 28))
+        self.label_curOrder_IngAmount.setGeometry(QtCore.QRect(560, 390, 90, 90))
+        self.label_curOrder_IngAmount.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_curOrder_IngAmount.setObjectName("label_curOrder_IngAmount")
         self.pushButton_curOrder = QtWidgets.QPushButton(self.page)
         self.pushButton_curOrder.setGeometry(QtCore.QRect(40, 290, 291, 111))
@@ -445,8 +470,9 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_config.setFont(font)
         self.label_config.setObjectName("label_config")
         self.label_curOrder = QtWidgets.QLabel(self.page)
-        self.label_curOrder.setGeometry(QtCore.QRect(380, 310, 151, 28))
+        self.label_curOrder.setGeometry(QtCore.QRect(380, 310, 191, 28))
         font = QtGui.QFont()
+        font.setPointSize(18)
         font.setFamily("MathJax_Caligraphic")
         self.label_curOrder.setFont(font)
         self.label_curOrder.setObjectName("label_curOrder")
@@ -551,11 +577,9 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.progressBar_config.setFont(font)
         self.progressBar_config.setProperty("value", 80)
         self.progressBar_config.setObjectName("progressBar_config")
-        self.label_curOrder_DynamicLaterAmt = QtWidgets.QLabel(self.page)
-        self.label_curOrder_DynamicLaterAmt.setGeometry(QtCore.QRect(560, 420, 90, 28))
-        self.label_curOrder_DynamicLaterAmt.setObjectName("label_curOrder_DynamicLaterAmt")
         self.label_curOrder_IngName = QtWidgets.QLabel(self.page)
-        self.label_curOrder_IngName.setGeometry(QtCore.QRect(380, 390, 121, 28))
+        self.label_curOrder_IngName.setGeometry(QtCore.QRect(380, 390, 121, 150))
+        self.label_curOrder_IngName.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_curOrder_IngName.setObjectName("label_curOrder_IngName")
         self.label_config_dynamicLater2 = QtWidgets.QLabel(self.page)
         self.label_config_dynamicLater2.setGeometry(QtCore.QRect(780, 220, 90, 28))
@@ -607,7 +631,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.progressBar_batteryCharge.raise_()
         self.progressBar_config_dynamicLater3.raise_()
         self.label_curOrder_Name.raise_()
-        self.label_curOrder_DynamicLaterAmt.raise_()
         self.label_curOrder_IngName.raise_()
         self.label_config_dynamicLater2.raise_()
         self.pushButton_advTools.raise_()
@@ -621,7 +644,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.progressBar_config_dynamicLater1.raise_()
         self.progressBar_config_dynamicLater2.raise_()
         self.progressBar_config_dynamicLater4.raise_()
-        self.label_curOrder_DynamicLaterName.raise_()
         self.pushButton_config.raise_()
         
         self.stackedWidget.addWidget(self.page)
@@ -643,7 +665,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedMenuWidget.setObjectName("stackedMenuWidget")
         self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
-        print(str(self.stackedMenuWidget.count()))
+        #print(str(self.stackedMenuWidget.count()))
 
         if self.stackedMenuWidget.count() != 1:
             self.pushButton_menuRight = QtWidgets.QPushButton(self.page_menuWindow)
@@ -1216,6 +1238,9 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_pageToMenu2.setObjectName("pushButton_pageToMenu2")
         
         self.pushButton_pageToMenu2.clicked.connect(self.toMenu)
+        self.pushButton_dock.clicked.connect(self.dock)
+        self.pushButton_advTools.clicked.connect(self.cupGift)
+        self.pushButton_curOrder.clicked.connect(self.quickOrder)
 
         self.pushButton_pageToPrimary2 = QtWidgets.QPushButton(self.page_3)
         self.pushButton_pageToPrimary2.setGeometry(QtCore.QRect(11, 441, 131, 111))
@@ -1231,7 +1256,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def generateMenu(self):
         menuRaw = fetchSQL(cursor, 'menu', 'id_start', '>', 0)
-        print(menuRaw)
+        #print(menuRaw)
         _translate = QtCore.QCoreApplication.translate
 
         stackedWidget = QtWidgets.QStackedWidget(self.page_menuWindow)
@@ -1240,14 +1265,13 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         menuCount = 0
         for i in menuRaw:
             menuName = str(i[0])
-            print(menuName)
             availableFlag = 1
             for j in range(0,i[2]):
                 ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
                 test = fetchSQL(cursor, 'config', 'ingredient_name', '=', ing[0][3])
                 if test == []:
                     availableFlag = 0
-                    print('   ERROR: Recipe \'' + menuName + '\' has none of Ingredient \'' + str(ing[0][3]) + '\' in configuration.')
+                    #print('   ERROR: Recipe \'' + menuName + '\' has none of Ingredient \'' + str(ing[0][3]) + '\' in configuration.')
                     break
                 if test[0][3] < ing[0][4]:
                     availableFlag = 0
@@ -1261,7 +1285,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                     menuPage = None
                     menuPage = QtWidgets.QWidget()
                     menuPage.setObjectName("menuPage " + str(int(menuCount/4) + 1))
-                    print('created menu page ' + str(int(menuCount/4) + 1))
+                    #print('created menu page ' + str(int(menuCount/4) + 1))
                     gridLayoutWidget = None
                     gridLayoutWidget = QtWidgets.QWidget(menuPage)
                     gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 721, 521))
@@ -1286,11 +1310,10 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 pushButton.setMinimumSize(QtCore.QSize(0, 150))
                 pushButton.setFlat(True)
                 pushButton.setObjectName(menuName + " pushButton")
-                print(menuName)
+                #print(menuName)
                 pushButton.setText(_translate("B3GUI", menuName))
                 pushButton.clicked.connect(self.sendOrder)
-                menuItem.addWidget(pushButton)
-                
+                menuItem.addWidget(pushButton)              
                 line_menuRecipe = QtWidgets.QFrame()
                 line_menuRecipe.setFrameShape(QtWidgets.QFrame.HLine)
                 line_menuRecipe.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -1374,11 +1397,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         return stackedWidget
     ##stackedWidget.count() returns for loop viable thing for making dynamic menu page change buttons
     
-    def displayMenu(self):
-        print("display menu")
 
     def menuRight(self):
-        print(str(self.stackedMenuWidget.currentIndex()))
         if(self.stackedMenuWidget.currentIndex() == 0):
             self.pushButton_menuLeft = QtWidgets.QPushButton(self.page_menuWindow)
             self.pushButton_menuLeft.setGeometry(QtCore.QRect(300, 550, 121, 41))
@@ -1387,9 +1407,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.pushButton_menuLeft.clicked.connect(self.menuLeft)
             self.pushButton_menuLeft.show()
         self.stackedMenuWidget.setCurrentIndex((self.stackedMenuWidget.currentIndex() + 1))
-        print('test')
         if((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
-            print('test')
             self.pushButton_menuRight.close()
 
 
@@ -1407,19 +1425,53 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.pushButton_menuLeft.close()
             
     def sendOrder(self):
-        sender = self.sender()
-        orderName = sender.text()
-        print(orderName)
-        orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
-        print(orderRaw)
-        order = ()
-        for i in orderRaw:
-            pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
-            temp = order + (pumpConfig[0][0], i[4])
-            order = temp
-        print(order)
-        pubMQTT(client, "order", order)
-        
+        if cupPresent:
+            _translate = QtCore.QCoreApplication.translate
+            sender = self.sender()
+            orderName = sender.text()
+            self.label_curOrder_Name.setText(_translate("B3GUI", str(orderName)))
+            #print(orderName)
+            orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
+            print(orderRaw)
+            order = None
+            ingName = ""
+            ingAmt = ""
+                    
+            '''for j in range(0,i[2]):
+                        ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
+                        ingName = str(ing[0][3])
+
+                        temp = (ingString + "<p>" + ingName + "</p>")
+                        ingString = temp'''
+
+                    
+            for i in orderRaw:
+                temp = (ingName + "<p>" + str(i[3]) + "</p>")
+                ingName = temp
+                temp = (ingAmt + "<p>" + str(i[4]) + " mL" + "</p>")
+                ingAmt = temp
+
+                pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
+                if order == None:
+                    temp = (pumpConfig[0][0], i[4])
+                    order = temp
+                else:
+                    temp = order, (pumpConfig[0][0], i[4])
+                    order = temp
+            self.label_curOrder_IngName.setText(_translate("B3GUI", ingName))
+            self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
+            global bartOrder
+            bartOrder = order
+            print(order)
+            pubMQTT(client, ORDER, order)
+            self.toPrimary()
+        else:
+            print("Please place cup in thingy.")
+
+    def quickOrder(self):
+        if bartOrder != "":
+            pubMQTT(client, ORDER, bartOrder)
+            self.toPrimary()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1428,18 +1480,14 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 "Configuration"))
         self.pushButton_toMenu.setText(_translate("B3GUI", "Menu"))
         self.label_config_dynamicLater3.setText(_translate("B3GUI", "Ing. D"))
-        self.label_curOrder_DynamicLaterName.setText(_translate("B3GUI", "Ingredient B"))
         self.label_config_dynamicLater1.setText(_translate("B3GUI", "Ing. B"))
-        self.label_config_dynamicLater4.setText(_translate("B3GUI", "Ing. E"))
-        self.label_curOrder_IngAmount.setText(_translate("B3GUI", "300 mL"))
+        self.label_config_dynamicLater4.setText(_translate("B3GUI", "Bartender is \n" + bartConnected))
+        self.label_curOrder_IngAmount.setText(_translate("B3GUI", " "))
         self.pushButton_curOrder.setText(_translate("B3GUI", "Quick Order"))
         self.pushButton_quit.setText(_translate("B3GUI", "Quit"))
         self.label_config.setText(_translate("B3GUI", "Ing. A"))
-        self.label_curOrder.setText(_translate("B3GUI", "Current Order:"))
+        self.label_curOrder.setText(_translate("B3GUI", "Current Order: "))
         self.pushButton_dock.setText(_translate("B3GUI", "Dock"))
-        self.label_curOrder_Name.setText(_translate("B3GUI", "Test Order 1"))
-        self.label_curOrder_DynamicLaterAmt.setText(_translate("B3GUI", "45 mL"))
-        self.label_curOrder_IngName.setText(_translate("B3GUI", "Ingredient A"))
         self.label_config_dynamicLater2.setText(_translate("B3GUI", "Ing. C"))
         self.pushButton_advTools.setText(_translate("B3GUI", "Adv. \n"
 "Tools"))
@@ -1487,7 +1535,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_51.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_52.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_53.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_54.setText(_translate("B3GUI", "Temp Curstom Drank Layout"))
+        self.label_54.setText(_translate("B3GUI", "Temp Custom Drank Layout"))
         self.label_55.setText(_translate("B3GUI", "Ingredient 2"))
         self.label_56.setText(_translate("B3GUI", "Ingredient 1"))
         self.label_57.setText(_translate("B3GUI", "Ingredient 3"))
@@ -1502,9 +1550,18 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedWidget.setCurrentIndex(2)
 
     def toPrimary(self):
+        self.retranslateUi()
         self.stackedWidget.setCurrentIndex(0)
 
+        
+    def cupGift(self): ##purely for test purposes in toggling cup present flag
+        global cupPresent
+        temp = not cupPresent
+        cupPresent = temp
 
+    def dock(self):
+        pubMQTT(client, DOCK, "hey this is the emergency dock signal")
+        
     def exitPopup(self):
         self.exit.setObjectName("ExitWindow")
         self.exit.setGeometry(332, 350, 360, 150)
@@ -1555,9 +1612,10 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.exit.show()
 
     def killUi(self):
-        #self.exit.getdfsdfogjh()
+        print("")
         self.exit.destroy()
         closeSQL(sqlConnect)
+        client.disconnect()
         QtCore.QCoreApplication.instance().quit
         sys.exit()
 
@@ -1569,6 +1627,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 def main():
     initMQTT(client)
     initSQL(sqlConnect)
+    print("")
     
     application = QtWidgets.QApplication(sys.argv)
     application.setStyle('Fusion')
@@ -1576,8 +1635,6 @@ def main():
     
     sys.exit(application.exec_())
     
-    client.loop_start()
-
     
 
 if __name__ == '__main__':
