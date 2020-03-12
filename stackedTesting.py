@@ -1308,7 +1308,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 sizePolicy.setHeightForWidth(pushButton.sizePolicy().hasHeightForWidth())
                 pushButton.setSizePolicy(sizePolicy)
                 pushButton.setMinimumSize(QtCore.QSize(0, 150))
-                pushButton.setFlat(True)
+                #pushButton.setFlat(True)
                 pushButton.setObjectName(menuName + " pushButton")
                 #print(menuName)
                 pushButton.setText(_translate("B3GUI", menuName))
@@ -1380,6 +1380,9 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 if (menuCount%2 == 1):
                     spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
                     gridLayout_menu.addItem(spacerItem, (int(((menuCount%4)-1)/2)), 1, 1, 1)
+
+                if (menuCount%4 == 3):
+                    gridLayout_menu.itemAtPosition(0, 0).invalidate()
     
                 menuCount += 1
         if (menuCount%4 == 1 or menuCount%4 == 2):
