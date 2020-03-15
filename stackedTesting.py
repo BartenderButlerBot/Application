@@ -150,7 +150,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         super().__init__()
         self.randomCounter = 0
         self.setWindowTitle("B3 GUI")
-        self.setGeometry(0, 0, 1024, 600)
+        self.setGeometry(0, 0, 630, 480)
         #self.setWindowIcon(QtGui.Icon('B3symbol.png'))
         _translate = QtCore.QCoreApplication.translate
         self.exit = QtWidgets.QDialog()
@@ -193,6 +193,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedWidget.setObjectName("stackedWidget")
 
         self.setupPrimary()
+       # self.showFullScreen()
         self.show()
     
     def setupPrimary(self):
