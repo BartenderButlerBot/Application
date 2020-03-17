@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>600</height>
+    <width>640</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
-     <height>600</height>
+     <width>640</width>
+     <height>480</height>
     </rect>
    </property>
    <property name="palette">
@@ -87,7 +87,7 @@
     </palette>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="page">
     <property name="sizePolicy">
@@ -1406,10 +1406,10 @@ Tools</string>
     <widget class="QPushButton" name="pushButton_pageToPrimary">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>441</y>
-       <width>131</width>
-       <height>111</height>
+       <x>7</x>
+       <y>353</y>
+       <width>82</width>
+       <height>89</height>
       </rect>
      </property>
      <property name="text">
@@ -1419,10 +1419,10 @@ Tools</string>
     <widget class="QPushButton" name="pushButton_pageToCustom">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>311</y>
-       <width>131</width>
-       <height>111</height>
+       <x>7</x>
+       <y>249</y>
+       <width>82</width>
+       <height>89</height>
       </rect>
      </property>
      <property name="text">
@@ -1432,10 +1432,10 @@ Tools</string>
     <widget class="QStackedWidget" name="stackedWidget_2">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>20</y>
-       <width>721</width>
-       <height>531</height>
+       <x>94</x>
+       <y>16</y>
+       <width>451</width>
+       <height>417</height>
       </rect>
      </property>
      <property name="frameShape">

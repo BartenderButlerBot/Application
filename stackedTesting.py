@@ -14,6 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
 MQTT_SERVER = "192.168.1.78"
+MQTT_SERVERY = "172.16.210.200"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
@@ -28,6 +29,7 @@ ORDER = "app/order"
 DOCK = "app/emergencyDock"
 BARTSTATUS = "bart/status"
 SENSORLOAD = "alfred/sensorLoad"
+STARTSIGNAL = "app/start"
 
 #### FLAGS  ####
 cupPresent = False
@@ -46,6 +48,7 @@ def on_message(client, userdata, message):
     #print(message.topic+" "+str(message.payload))
     msg = str(message.payload.decode("utf-8"))
     print("~~MQTT~~ Received message \"" + msg + "\" from topic \"" + message.topic + "\".")
+
 
     if message.topic == ORDER:
         global bartenderOrder
@@ -95,9 +98,9 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
 
     client.loop_start()
-    print("~~MQTT~~ Attempting broker connection:  ", MQTT_SERVER)
+    print("~~MQTT~~ Attempting broker connection:  ", MQTT_SERVERY)
     
-    client.connect(MQTT_SERVERC, MQTT_PORT)
+    client.connect(MQTT_SERVERY, MQTT_PORT)
     
     while not client.connected_flag: #wait in loop
         time.sleep(1)
@@ -105,7 +108,7 @@ def initMQTT(self):
             print("~~MQTT~~ Connecting...")
 
     print("~~MQTT~~ Initialized.")
-    client.subscribe([(ORDER, 2),(SENSORLOAD, 1), (BARTSTATUS, 2)])
+    client.subscribe([(ORDER, 2),(SENSORLOAD, 1), (BARTSTATUS, 2), (STARTSIGNAL, 2)])
 
 ########################## SQLite3 SETUP ##########################
 
@@ -245,6 +248,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         font.setPointSize(60)
         self.pushButton_toMenu.setFont(font)
         self.pushButton_toMenu.setObjectName("pushButton_toMenu")
+
+        self.pushButton_config.clicked.connect(self.test)
 
         self.pushButton_toMenu.clicked.connect(self.toMenu)
         
@@ -1479,6 +1484,9 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             pubMQTT(client, ORDER, bartOrder)
             self.toPrimary()
 
+    def test(self):
+        pubMQTT(client, STARTSIGNAL, "hi yianni")
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("B3GUI", "Form"))
@@ -1614,7 +1622,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.exit.setLayout(self.exitLayout)
 
         self.exit.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        #self.exit.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.exit.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.exit.show()
 
     def killUi(self):
