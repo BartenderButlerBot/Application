@@ -196,7 +196,8 @@ class Ui_Form(QtWidgets.QMainWindow):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.pushButton_2.setText(_translate("Form", "Change Order"))
+        self.pushButton_2.setText(_translate("Form
+                                             ", "Change Order"))
         self.label_2.setText(_translate("Form", "butlerACK"))
         self.pushButton.setText(_translate("Form", "Order Drink"))
         self.pushButton_3.setText(_translate("Form", "Dock Butler"))
