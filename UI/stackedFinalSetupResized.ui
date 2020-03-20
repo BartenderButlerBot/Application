@@ -60,7 +60,7 @@
     </palette>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page">
     <property name="sizePolicy">
@@ -351,7 +351,7 @@ Configuration</string>
        <x>488</x>
        <y>208</y>
        <width>56</width>
-       <height>22</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
@@ -477,7 +477,7 @@ Configuration</string>
        <x>488</x>
        <y>144</y>
        <width>56</width>
-       <height>22</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
@@ -648,7 +648,7 @@ Configuration</string>
        <x>488</x>
        <y>240</y>
        <width>56</width>
-       <height>22</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
@@ -847,7 +847,7 @@ Configuration</string>
        <x>488</x>
        <y>112</y>
        <width>56</width>
-       <height>22</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
@@ -1210,10 +1210,10 @@ Configuration</string>
     <widget class="QLabel" name="label_config_dynamicLater2">
      <property name="geometry">
       <rect>
-       <x>25</x>
-       <y>360</y>
+       <x>488</x>
+       <y>176</y>
        <width>56</width>
-       <height>72</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">

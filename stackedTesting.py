@@ -13,7 +13,7 @@ from sqlite3 import Error
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
-MQTT_SERVER = "192.168.1.75"
+MQTT_SERVER = "192.168.1.78"
 MQTT_SERVERY = "172.16.210.200"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
@@ -53,7 +53,7 @@ def on_message(client, userdata, message):
     if message.topic == ORDER:
         global bartenderOrder
         bartenderOrder = msg
-        print("order topic test")
+        #print("order topic test")
         
     if message.topic == SENSORLOAD:
         global cupPresent
@@ -107,7 +107,7 @@ def initMQTT(self):
             print("~~MQTT~~ Connecting...")
 
     print("~~MQTT~~ Initialized.")
-    client.subscribe([(ORDER, 2),(SENSORLOAD, 1), (BARTSTATUS, 2), (STARTSIGNAL, 2)])
+    client.subscribe([(SENSORLOAD, 1), (BARTSTATUS, 2), (STARTSIGNAL, 2)])
 
 ########################## SQLite3 SETUP ##########################
 
@@ -1399,7 +1399,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.label_curOrder_Name.setText(_translate("B3GUI", str(orderName)))
             #print(orderName)
             orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
-            print(orderRaw)
+            #print(orderRaw)
             order = None
             ingName = ""
             ingAmt = ""
@@ -1429,11 +1429,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
             global bartOrder
             bartOrder = order
-            print(order)
+            #print(order)
             pubMQTT(client, ORDER, order)
             self.toPrimary()
         else:
-            print("Please place cup in thingy.")
+            print("Please place a cup in Alfred the Butler's tray.")
 
     def quickOrder(self):
         if bartOrder != "":
@@ -1711,6 +1711,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
     def cupGift(self): ##purely for test purposes in toggling cup present flag
         global cupPresent
         temp = not cupPresent
+        print("~~MQTT~~ Received message \"" + "1" + "\" from topic \"" + "alfred/cupStatus" + "\".")
         cupPresent = temp
 
     def dock(self):
