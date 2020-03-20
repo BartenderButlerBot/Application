@@ -81,7 +81,7 @@ def initMQTT(self):
         
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(MQTT_SERVERC, MQTT_PORT)
+    client.connect(MQTT_SERVER, MQTT_PORT)
     client.subscribe([(BARORDER, 1),(BARINVA, 1),(BARINVB, 1)])
 
 ########################## SQLite3 SETUP ##########################
