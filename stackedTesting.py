@@ -97,7 +97,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVER
+    ip = MQTT_SERVERC
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -122,8 +122,8 @@ def insertSQL(self, tableName, columnNames, values):
     try:
         cursor.execute("INSERT INTO " + str(tableName) + "(" + 
                        str(columnNames) + ") values(" + str(values) + ")")
-        print("Successfully inserted " + str(values) + 
-              " into table " + str(tableName))
+        print("Successfully inserted \"" + str(values) + 
+              "\" into table \"" + str(tableName)) + "\""
         sqlConnect.commit()
     except Error as e:
         print(e)
@@ -972,7 +972,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedWidget.addWidget(self.page_custom)
 
         ##################### Config page #####################
-        
         self.page_config = QtWidgets.QWidget()
         self.page_config.setObjectName("page_config")
         self.pushButton_config_toMain = QtWidgets.QPushButton(self.page_config)
@@ -989,6 +988,10 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
         self.pushButton_config_toMain.setPalette(palette)
         self.pushButton_config_toMain.setObjectName("pushButton_config_toMain")
+
+
+        #def start point?
+                # may also need to have a "cleanse page" function just prior to this
         self.frame_config = QtWidgets.QFrame(self.page_config)
         self.frame_config.setGeometry(QtCore.QRect(40, 15, 506, 453))
         self.frame_config.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -1000,27 +1003,19 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.gridLayout_config = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_config.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_config.setObjectName("gridLayout_config")
-        self.lineEdit_config_pumpid = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_pumpid.setMaximumSize(QtCore.QSize(35, 16777215))
-        self.lineEdit_config_pumpid.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_pumpid.setObjectName("lineEdit_config_pumpid")
-        self.lineEdit_config_pumpid.setText(_translate("B3GUI", "1"))
-        self.lineEdit_config_pumpid.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_pumpid, 1, 0, 1, 1, QtCore.Qt.AlignRight)
-        self.lineEdit_config_ingName = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingName.setAutoFillBackground(False)
-        self.lineEdit_config_ingName.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingName.setObjectName("lineEdit_config_ingName")
-        self.lineEdit_config_ingName.setText(_translate("B3GUI", "Test Liquor A"))
-        self.lineEdit_config_ingName.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingName, 1, 2, 1, 1)
-        self.lineEdit_config_pumpid_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_pumpid_3.setMaximumSize(QtCore.QSize(35, 16777215))
-        self.lineEdit_config_pumpid_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_pumpid_3.setObjectName("lineEdit_config_pumpid_3")
-        self.lineEdit_config_pumpid_3.setText(_translate("B3GUI", "3"))
-        self.lineEdit_config_pumpid_3.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_pumpid_3, 3, 0, 1, 1, QtCore.Qt.AlignRight)
+
+        ##headers
+        self.label_config_pumpHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_config_pumpHead.sizePolicy().hasHeightForWidth())
+        self.label_config_pumpHead.setSizePolicy(sizePolicy)
+        self.label_config_pumpHead.setMinimumSize(QtCore.QSize(40, 0))
+        self.label_config_pumpHead.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_config_pumpHead.setObjectName("label_config_pumpHead")
+        self.gridLayout_config.addWidget(self.label_config_pumpHead, 0, 0, 1, 1, QtCore.Qt.AlignRight)
+
         self.label_config_ingNameHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1032,8 +1027,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_config_ingNameHead.setObjectName("label_config_ingNameHead")
         self.label_config_ingNameHead.setText(_translate("B3GUI", "Ingredient"))
         self.gridLayout_config.addWidget(self.label_config_ingNameHead, 0, 2, 1, 1)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_config.addItem(spacerItem6, 4, 2, 1, 1)
+
         self.label_config_ingAmountHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1045,6 +1039,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_config_ingAmountHead.setObjectName("label_config_ingAmountHead")
         self.label_config_ingAmountHead.setText(_translate("B3GUI", "Amount\nRemaining"))
         self.gridLayout_config.addWidget(self.label_config_ingAmountHead, 0, 4, 1, 1)
+        
         self.label_config_ingUnitHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1056,41 +1051,89 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_config_ingUnitHead.setObjectName("label_config_ingUnitHead")
         self.label_config_ingUnitHead.setText(_translate("B3GUI", "Unit"))
         self.gridLayout_config.addWidget(self.label_config_ingUnitHead, 0, 5, 1, 1)
-        self.label_config_unit = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_config_unit.setObjectName("label_config_unit")
-        self.label_config_unit.setText(_translate("B3GUI", "mL"))
-        self.gridLayout_config.addWidget(self.label_config_unit, 1, 5, 1, 1)    
-        self.buttonBox_config = QtWidgets.QDialogButtonBox(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.buttonBox_config.sizePolicy().hasHeightForWidth())
-        self.buttonBox_config.setSizePolicy(sizePolicy)
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        self.buttonBox_config.setPalette(palette)
-        self.buttonBox_config.setLayoutDirection(QtCore.Qt.RightToLeft)
-        self.buttonBox_config.setOrientation(QtCore.Qt.Vertical)
-        self.buttonBox_config.setStandardButtons(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Reset)
-        self.buttonBox_config.setCenterButtons(False)
-        self.buttonBox_config.setObjectName("buttonBox_config")
 
-        self.buttonBox_config.accepted.connect(self.configAdd)
-        self.buttonBox_config.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self.configReset)
+        ##pumpid and line
 
-        self.gridLayout_config.addWidget(self.buttonBox_config, 5, 4, 1, 1)
-        self.label_config_unit_2 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_config_unit_2.setObjectName("label_config_unit_2")
-        self.label_config_unit_2.setText(_translate("B3GUI", "mL"))
-        self.gridLayout_config.addWidget(self.label_config_unit_2, 2, 5, 1, 1)
+        configRaw = fetchSQL(cursor, 'config', 'pump_id', '>', 0)
+
+        for i in range(0, len(configRaw)+1):
+            
+            lineEdit_config_pumpid = QtWidgets.QLineEdit()
+            lineEdit_config_pumpid.setMaximumSize(QtCore.QSize(35, 16777215))
+            lineEdit_config_pumpid.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+            lineEdit_config_pumpid.setObjectName("lineEdit_config_pumpid")
+            
+            line_configpump = QtWidgets.QFrame()
+            line_configpump.setFrameShape(QtWidgets.QFrame.VLine)
+            line_configpump.setFrameShadow(QtWidgets.QFrame.Sunken)
+            line_configpump.setObjectName("line_configpump") 
+            
+            lineEdit_config_ingName = QtWidgets.QLineEdit()
+            lineEdit_config_ingName.setAutoFillBackground(False)
+            lineEdit_config_ingName.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+            lineEdit_config_ingName.setObjectName("lineEdit_config_ingName")
+
+            line_configing = QtWidgets.QFrame()
+            line_configing.setFrameShape(QtWidgets.QFrame.VLine)
+            line_configing.setFrameShadow(QtWidgets.QFrame.Sunken)
+            line_configing.setObjectName("line_configing")
+            
+            lineEdit_config_ingAmount = QtWidgets.QLineEdit()
+            lineEdit_config_ingAmount.setMaximumSize(QtCore.QSize(90, 16777215))
+            lineEdit_config_ingAmount.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+            lineEdit_config_ingAmount.setObjectName("lineEdit_config_ingAmount")
+            
+            label_config_unit = QtWidgets.QLabel()
+            label_config_unit.setObjectName("label_config_unit")
+
+            self.gridLayout_config.addWidget(lineEdit_config_pumpid, (i+1), 0, 1, 1, QtCore.Qt.AlignRight)
+            self.gridLayout_config.addWidget(line_configpump, (i+1), 1, 1, 1)
+            self.gridLayout_config.addWidget(lineEdit_config_ingName, (i+1), 2, 1, 1)
+            self.gridLayout_config.addWidget(line_configing, (i+1), 3, 1, 1, QtCore.Qt.AlignHCenter)
+            self.gridLayout_config.addWidget(lineEdit_config_ingAmount, (i+1), 4, 1, 1)
+            self.gridLayout_config.addWidget(label_config_unit, (i+1), 5, 1, 1)
+
+            if i != len(configRaw):
+                lineEdit_config_pumpid.setText(_translate("B3GUI", str(configRaw[i][0])))
+                lineEdit_config_ingName.setText(_translate("B3GUI", str(configRaw[i][2])))
+                lineEdit_config_ingAmount.setText(_translate("B3GUI", str(configRaw[i][3])))
+                label_config_unit.setText(_translate("B3GUI", "mL"))
+                lineEdit_config_pumpid.setReadOnly(True)
+                lineEdit_config_ingName.setReadOnly(True)
+                lineEdit_config_ingAmount.setReadOnly(True)
+            else:
+                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                self.gridLayout_config.addItem(spacerItem, i+2, 2, 1, 1)
+                self.buttonBox_config = QtWidgets.QDialogButtonBox(self.gridLayoutWidget_2)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(self.buttonBox_config.sizePolicy().hasHeightForWidth())
+                self.buttonBox_config.setSizePolicy(sizePolicy)
+                palette = QtGui.QPalette()
+                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
+                brush.setStyle(QtCore.Qt.SolidPattern)
+                palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
+                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
+                brush.setStyle(QtCore.Qt.SolidPattern)
+                palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
+                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
+                brush.setStyle(QtCore.Qt.SolidPattern)
+                palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
+                self.buttonBox_config.setPalette(palette)
+                self.buttonBox_config.setLayoutDirection(QtCore.Qt.RightToLeft)
+                self.buttonBox_config.setOrientation(QtCore.Qt.Vertical)
+                self.buttonBox_config.setStandardButtons(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Reset)
+                self.buttonBox_config.setCenterButtons(False)
+                self.buttonBox_config.setObjectName("buttonBox_config")
+                self.buttonBox_config.accepted.connect(self.configAdd)
+                self.buttonBox_config.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self.configReset)
+                self.gridLayout_config.addWidget(self.buttonBox_config, i+3, 4, 1, 1)
+
+
+
+        
+        '''
         self.lineEdit_config_pumpid_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
         self.lineEdit_config_pumpid_2.setMaximumSize(QtCore.QSize(35, 16777215))
         self.lineEdit_config_pumpid_2.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
@@ -1098,17 +1141,26 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.lineEdit_config_pumpid_2.setText(_translate("B3GUI", "2"))
         self.lineEdit_config_pumpid_2.setReadOnly(True)
         self.gridLayout_config.addWidget(self.lineEdit_config_pumpid_2, 2, 0, 1, 1, QtCore.Qt.AlignRight)
-        self.label_config_unit_3 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_config_unit_3.setObjectName("label_config_unit_3")
-        self.label_config_unit_3.setText(_translate("B3GUI", "mL"))
-        self.gridLayout_config.addWidget(self.label_config_unit_3, 3, 5, 1, 1)
-        self.lineEdit_config_ingName_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingName_3.setAutoFillBackground(False)
-        self.lineEdit_config_ingName_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingName_3.setText("Test Ingredient A")
-        self.lineEdit_config_ingName_3.setObjectName("lineEdit_config_ingName_3")
-        self.lineEdit_config_ingName_3.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingName_3, 3, 2, 1, 1)
+        self.lineEdit_config_pumpid_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
+        self.lineEdit_config_pumpid_3.setMaximumSize(QtCore.QSize(35, 16777215))
+        self.lineEdit_config_pumpid_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+        self.lineEdit_config_pumpid_3.setObjectName("lineEdit_config_pumpid_3")
+        self.lineEdit_config_pumpid_3.setText(_translate("B3GUI", "3"))
+        self.lineEdit_config_pumpid_3.setReadOnly(True)
+        self.gridLayout_config.addWidget(self.lineEdit_config_pumpid_3, 3, 0, 1, 1, QtCore.Qt.AlignRight)
+        
+        self.line_configpump_2 = QtWidgets.QFrame(self.gridLayoutWidget_2)
+        self.line_configpump_2.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_configpump_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_configpump_2.setObjectName("line_configpump_2")
+        self.gridLayout_config.addWidget(self.line_configpump_2, 2, 1, 1, 1)
+        self.line_configpump_3 = QtWidgets.QFrame(self.gridLayoutWidget_2)
+        self.line_configpump_3.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_configpump_3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_configpump_3.setObjectName("line_configpump_3")
+        self.gridLayout_config.addWidget(self.line_configpump_3, 3, 1, 1, 1)
+
+        #ing and line
         self.lineEdit_config_ingName_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
         self.lineEdit_config_ingName_2.setAutoFillBackground(False)
         self.lineEdit_config_ingName_2.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
@@ -1116,33 +1168,27 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.lineEdit_config_ingName_2.setObjectName("lineEdit_config_ingName_2")
         self.lineEdit_config_ingName_2.setReadOnly(True)
         self.gridLayout_config.addWidget(self.lineEdit_config_ingName_2, 2, 2, 1, 1)
-        self.label_config_pumpHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_config_pumpHead.sizePolicy().hasHeightForWidth())
-        self.label_config_pumpHead.setSizePolicy(sizePolicy)
-        self.label_config_pumpHead.setMinimumSize(QtCore.QSize(40, 0))
-        self.label_config_pumpHead.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_config_pumpHead.setObjectName("label_config_pumpHead")
-        self.gridLayout_config.addWidget(self.label_config_pumpHead, 0, 0, 1, 1, QtCore.Qt.AlignRight)
-        self.line_configing = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configing.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configing.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configing.setObjectName("line_configing")
-        self.gridLayout_config.addWidget(self.line_configing, 1, 3, 1, 1, QtCore.Qt.AlignHCenter)
-        self.line_configpump = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configpump.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configpump.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configpump.setObjectName("line_configpump")
-        self.gridLayout_config.addWidget(self.line_configpump, 1, 1, 1, 1)
-        self.lineEdit_config_ingAmount = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingAmount.setMaximumSize(QtCore.QSize(90, 16777215))
-        self.lineEdit_config_ingAmount.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingAmount.setObjectName("lineEdit_config_ingAmount")
-        self.lineEdit_config_ingAmount.setText(_translate("B3GUI", "300"))
-        self.lineEdit_config_ingAmount.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingAmount, 1, 4, 1, 1)
+        self.lineEdit_config_ingName_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
+        self.lineEdit_config_ingName_3.setAutoFillBackground(False)
+        self.lineEdit_config_ingName_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+        self.lineEdit_config_ingName_3.setText("Test Ingredient A")
+        self.lineEdit_config_ingName_3.setObjectName("lineEdit_config_ingName_3")
+        self.lineEdit_config_ingName_3.setReadOnly(True)
+        self.gridLayout_config.addWidget(self.lineEdit_config_ingName_3, 3, 2, 1, 1)               
+        
+        
+        self.line_configing_2 = QtWidgets.QFrame(self.gridLayoutWidget_2)
+        self.line_configing_2.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_configing_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_configing_2.setObjectName("line_configing_2")
+        self.gridLayout_config.addWidget(self.line_configing_2, 2, 3, 1, 1)
+        self.line_configing_3 = QtWidgets.QFrame(self.gridLayoutWidget_2)
+        self.line_configing_3.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_configing_3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_configing_3.setObjectName("line_configing_3")
+        self.gridLayout_config.addWidget(self.line_configing_3, 3, 3, 1, 1)
+
+        #amount + unit
         self.lineEdit_config_ingAmount_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
         self.lineEdit_config_ingAmount_2.setMaximumSize(QtCore.QSize(90, 16777215))
         self.lineEdit_config_ingAmount_2.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
@@ -1157,26 +1203,20 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.lineEdit_config_ingAmount_3.setText(_translate("B3GUI", "300"))
         self.lineEdit_config_ingAmount_3.setReadOnly(True)
         self.gridLayout_config.addWidget(self.lineEdit_config_ingAmount_3, 3, 4, 1, 1)
-        self.line_configpump_3 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configpump_3.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configpump_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configpump_3.setObjectName("line_configpump_3")
-        self.gridLayout_config.addWidget(self.line_configpump_3, 3, 1, 1, 1)
-        self.line_configpump_2 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configpump_2.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configpump_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configpump_2.setObjectName("line_configpump_2")
-        self.gridLayout_config.addWidget(self.line_configpump_2, 2, 1, 1, 1)
-        self.line_configing_2 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configing_2.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configing_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configing_2.setObjectName("line_configing_2")
-        self.gridLayout_config.addWidget(self.line_configing_2, 2, 3, 1, 1)
-        self.line_configing_3 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configing_3.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configing_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configing_3.setObjectName("line_configing_3")
-        self.gridLayout_config.addWidget(self.line_configing_3, 3, 3, 1, 1)
+
+        self.label_config_unit_2 = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        self.label_config_unit_2.setObjectName("label_config_unit_2")
+        self.label_config_unit_2.setText(_translate("B3GUI", "mL"))
+        self.gridLayout_config.addWidget(self.label_config_unit_2, 2, 5, 1, 1)
+        
+        self.label_config_unit_3 = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        self.label_config_unit_3.setObjectName("label_config_unit_3")
+        self.label_config_unit_3.setText(_translate("B3GUI", "mL"))
+        self.gridLayout_config.addWidget(self.label_config_unit_3, 3, 5, 1, 1)
+      '''  
+        #button box
+        
+        
         self.widget_config_rightInfo = QtWidgets.QListWidget(self.page_config)
         self.widget_config_rightInfo.setGeometry(QtCore.QRect(560, 0, 81, 482))
         palette = QtGui.QPalette()
@@ -1229,6 +1269,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             availableFlag = 1
             for j in range(0,i[2]):
                 ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
+                print(ing)
                 test = fetchSQL(cursor, 'config', 'ingredient_name', '=', ing[0][3])
                 if test == []:
                     availableFlag = 0
@@ -1439,6 +1480,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         if bartOrder != "":
             pubMQTT(client, ORDER, bartOrder)
             self.toPrimary()
+        else:
+            print("There has not been a previous order yet!")
 
     def customReset(self):
         for i in range(1, self.gridLayout_custom.rowCount() - 2):
@@ -1446,7 +1489,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.gridLayout_custom.itemAtPosition(i, 2).widget().clear()
             
     def customAdd(self):
-        self.recipeName = None
         self.customAddConfirm = QtWidgets.QDialog()
         self.customAddConfirm.setObjectName("CustomAddConfirmWindow")
         self.customAddConfirm.setGeometry(160, 240, 320, 160)
@@ -1511,14 +1553,26 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.customAddConfirm.show()
 
     def customConfirm(self):
-        self.recipeName = self.layout_customAddConfirm.itemAt(1).widget().text()
+        recipeName = self.layout_customAddConfirm.itemAt(1).widget().text()
+        numIng = 0
+        cursor.execute('SELECT id FROM ' + 'recipes' + ' ORDER BY ' +
+                       'id' + ' DESC LIMIT 1')
+        value = cursor.fetchall()
         for i in range(1, self.gridLayout_custom.rowCount() - 2):
             ingName = str(self.gridLayout_custom.itemAtPosition(i, 0).widget().text())
             ingAmnt = str(self.gridLayout_custom.itemAtPosition(i, 2).widget().text())
             values = None
-            values = "\'" + self.recipeName + "\', \'" + ingName + "\', \'" + ingAmnt + "\'"
-            if ingName != "" and ingAmnt != "" and self.recipeName != "":
-                insertSQL(cursor, "recipes", "recipe_name, ingredient_name, ingredient_amount_", values)
+            values = "\'" + recipeName + "\', \'" + ingName + "\', \'" + ingAmnt + "\'"
+            if ingName != "" and ingAmnt != "" and recipeName != "":
+                numIng += 1
+                #insertSQL(cursor, "recipes", "recipe_name, ingredient_name, ingredient_amount_", values)
+
+        if numIng != 0:
+            print(value[0][0] + 1)
+            values = None
+            values = "\'" + recipeName + "\', " + str((value[0][0] + 1)) + ", " + str(numIng)
+            print(values)
+            insertSQL(cursor, "menu", "name, id_start, num_ingredient", values)
         self.customAddConfirm.destroy
 
     def configInit(self):
