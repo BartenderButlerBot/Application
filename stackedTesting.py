@@ -97,7 +97,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVERC
+    ip = MQTT_SERVER
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -141,6 +141,19 @@ def fetchSQL(self, table, column, condtional, condition):
     except Error as e:
         print(e)
 
+def updateSQL(self, table, updatedInfo, column, conditional, condition):
+    try:
+        if isinstance(condition, str):
+            conditionCheck = '\'' + str(condition) + '\''
+        else:
+            conditionCheck = str(condition)
+        cursor.execute('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
+                       str(column) + str(condtional) + conditionCheck)
+        value = cursor.fetchall()
+        return value
+    except Error as e:
+        print(e)
+        
 def deleteSQL(self, table, column, conditional, condition):
     try:
         if isinstance(condition, str):
@@ -173,7 +186,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.exit = QtWidgets.QDialog()
         self.configAddConfirm = QtWidgets.QDialog()
-        self.menuUpdateFlag = 0
         #self.customAddConfirm = QtWidgets.QDialog()
         
         self.paletteButton = QtGui.QPalette()
@@ -502,6 +514,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_curOrder.setGeometry(QtCore.QRect(259, 227, 170, 22))
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
+        font.setPointSize(16)
         self.label_curOrder.setFont(font)
         self.label_curOrder.setObjectName("label_curOrder")
         self.pushButton_dock = QtWidgets.QPushButton(self.page)
@@ -1259,11 +1272,19 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
                 pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
                 if order == None:
-                    temp = (pumpConfig[0][0], i[4])
+                    temp = ("M" + str(pumpConfig[0][0]), i[4])
                     order = temp
                 else:
-                    temp = order, (pumpConfig[0][0], i[4])
+                    temp = order, ("M" + str(pumpConfig[0][0]), i[4])
                     order = temp
+            print(len(order))
+
+            if len(orderRaw) == 1:
+                temp = order
+                convOrder = (temp,)
+                order = (str(convOrder).rstrip(",)") + "))")
+                
+                print(convOrder)
             self.label_curOrder_IngName.setText(_translate("B3GUI", ingName))
             self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
             global bartOrder
@@ -1359,14 +1380,13 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         for i in range(1, self.gridLayout_custom.rowCount() - 2):
             ingName = str(self.gridLayout_custom.itemAtPosition(i, 0).widget().text())
             ingAmnt = str(self.gridLayout_custom.itemAtPosition(i, 2).widget().text())
-            self.gridLayout_custom.itemAtPosition(i, 0).widget().clear()
-            self.gridLayout_custom.itemAtPosition(i, 2).widget().clear()
             values = None
             values = "\'" + recipeName + "\', \'" + ingName + "\', \'" + ingAmnt + "\'"
             if ingName != "" and ingAmnt != "" and recipeName != "":
                 numIng += 1
                 insertSQL(cursor, "recipes", "recipe_name, ingredient_name, ingredient_amount", values)
-                self.menuUpdateFlag = 1
+            ##currently works under the assumption there are no correct inputs. return to allow
+            ##for user error if time permits
             '''else:
                 print("ERROR: Recipe List Update: Invalid Entry.")'''
 
@@ -1374,7 +1394,10 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             values = None
             values = "\'" + recipeName + "\', " + str((value[0][0] + 1)) + ", " + str(numIng)
             insertSQL(cursor, "menu", "name, id_start, num_ingredient", values)
-            self.updateMenuFlag = 1
+            self.menuRefresh()
+        self.customReset()
+        time.sleep(.8)
+        self.stackedWidget.setCurrentIndex(1)
         self.customAddConfirm.destroy()
 
     def configGenerate(self):
@@ -1438,7 +1461,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
         configRaw = fetchSQL(cursor, 'config', 'pump_id', '>', 0)
 
-        for i in range(0, len(configRaw)+1):
+        for i in range(0, 3):
             
             lineEdit_config_pumpid = QtWidgets.QLineEdit()
             lineEdit_config_pumpid.setMaximumSize(QtCore.QSize(35, 16777215))
@@ -1467,6 +1490,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             
             label_config_unit = QtWidgets.QLabel()
             label_config_unit.setObjectName("label_config_unit")
+            label_config_unit.setText(_translate("B3GUI", "mL"))
 
             gridLayout_defConfig.addWidget(lineEdit_config_pumpid, (i+1), 0, 1, 1, QtCore.Qt.AlignRight)
             gridLayout_defConfig.addWidget(line_configpump, (i+1), 1, 1, 1)
@@ -1475,15 +1499,16 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             gridLayout_defConfig.addWidget(lineEdit_config_ingAmount, (i+1), 4, 1, 1)
             gridLayout_defConfig.addWidget(label_config_unit, (i+1), 5, 1, 1)
 
-            if i != len(configRaw):
-                lineEdit_config_pumpid.setText(_translate("B3GUI", str(configRaw[i][0])))
+            lineEdit_config_pumpid.setText(_translate("B3GUI", str(configRaw[i][0])))
+            lineEdit_config_pumpid.setReadOnly(True)
+            
+            if configRaw[i][2] != "" and configRaw[i][3] != "":
                 lineEdit_config_ingName.setText(_translate("B3GUI", str(configRaw[i][2])))
                 lineEdit_config_ingAmount.setText(_translate("B3GUI", str(configRaw[i][3])))
-                label_config_unit.setText(_translate("B3GUI", "mL"))
-                lineEdit_config_pumpid.setReadOnly(True)
+                
                 lineEdit_config_ingName.setReadOnly(True)
                 lineEdit_config_ingAmount.setReadOnly(True)
-            else:
+            if i == 2:
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
                 gridLayout_defConfig.addItem(spacerItem, i+2, 2, 1, 1)
                 buttonBox_config = QtWidgets.QDialogButtonBox()
@@ -1512,16 +1537,30 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 buttonBox_config.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self.configReset)
                 gridLayout_defConfig.addWidget(buttonBox_config, i+3, 4, 1, 1)
 
-        print("config generated")
         self.gridLayoutWidget_config.setLayout(gridLayout_defConfig)
 
+    def configDeleteRow(self):
+        #deletes designated row in config page
+        #same as reset basically but for a specifc row
+        #completely optional QoL task. ignore this if more pressing issues are at hand
+        self.configRefresh()
+
     def configRefresh(self):
+        _translate = QtCore.QCoreApplication.translate
         layout = self.gridLayoutWidget_config.layout()
-        for i in reversed(range(layout.count())):
-            if not(layout.itemAt(i).isEmpty()):
-                layout.itemAt(i).widget().setParent(None)
-        layout.deleteLater()
-        self.configGenerate()
+        configRaw = fetchSQL(cursor, 'config', 'pump_id', '>', 0)
+        for i in range(0, 3):
+            if configRaw[i][2] != "" and configRaw[i][3] != "":
+                layout.itemAtPosition((i+1), 2).widget().setText(_translate("B3GUI", str(configRaw[i][2])))
+                layout.itemAtPosition((i+1), 4).widget().setText(_translate("B3GUI", str(configRaw[i][3])))
+                layout.itemAtPosition((i+1), 2).widget().setReadOnly(True)
+                layout.itemAtPosition((i+1), 4).widget().setReadOnly(True)
+            else:
+                layout.itemAtPosition((i+1), 2).widget().setText(_translate("B3GUI", ""))
+                layout.itemAtPosition((i+1), 4).widget().setText(_translate("B3GUI", "")) 
+                layout.itemAtPosition((i+1), 2).widget().setReadOnly(False)
+                layout.itemAtPosition((i+1), 4).widget().setReadOnly(False)
+        self.menuRefresh()
         
             
     def configAdd(self):
@@ -1548,16 +1587,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         label_configAddConfirm.setWordWrap(True)
         label_configAddConfirm.setObjectName("label_configAddConfirm")
         self.layout_configAddConfirm.addWidget(label_configAddConfirm)
-
-        '''lineEdit_config_recipeName = QtWidgets.QLineEdit()
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(lineEdit_config_recipeName.sizePolicy().hasHeightForWidth())
-        lineEdit_config_recipeName.setSizePolicy(sizePolicy)
-        lineEdit_config_recipeName.setMinimumSize(QtCore.QSize(220, 0))
-        lineEdit_config_recipeName.setObjectName("lineEdit_config_recipeName")
-        self.layout_configAddConfirm.addWidget(lineEdit_config_recipeName, 0, QtCore.Qt.AlignHCenter)'''
 
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.layout_configAddConfirm.addItem(spacerItem)
@@ -1590,21 +1619,24 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def configConfirm(self):
         layout = self.gridLayoutWidget_config.layout()
-        queryRow = layout.rowCount() - 3
-        pumpid = str(layout.itemAtPosition(queryRow, 0).widget().text())
-        ingName = str(layout.itemAtPosition(queryRow, 2).widget().text())
-        ingAmnt = str(layout.itemAtPosition(queryRow, 4).widget().text())
-        values = None
-        values = "\'" + pumpid + "\', \'" + ingName + "\', \'" + ingAmnt + "\'"
-        if ingName != "" and ingAmnt != "" and pump_id != "":
-            insertSQL(cursor, "config", "pump_id, ingredient_name, inventory", values)
-            self.configRefresh()
 
+        for i in range(1,4):
+            if (ingName != "" and ingAmnt != "" and
+                not(layout.itemAtPosition(i, 2).widget().isReadOnly())):
+                ingName = str(layout.itemAtPosition(i, 2).widget().text())
+                ingAmnt = str(layout.itemAtPosition(i, 4).widget().text())
+                updateInfo = ("ingredient_name = '" + ingName + "', inventory = "
+                              + ingAmnt + ", start_inventory = " + ingAmnt)
+                updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
+
+        self.configRefresh()
         self.configAddConfirm.destroy()
 
         
     def configReset(self):
-        deleteSQL(cursor, "config", "pump_id", ">", "0")
+        for i in range(1,4):
+            updateInfo = "ingredient_name = '', inventory = '', start_inventory = ''"
+            updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
         self.configRefresh()
         
     def test(self):
@@ -1629,52 +1661,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_advTools.setText(_translate("B3GUI", "Adv. \n"
 "Tools"))
         self.label_batteryCharge.setText(_translate("B3GUI", "Battery Charge"))
-
-        
-        '''self.pushButton_2.setText(_translate("B3GUI", "Test Drink B"))
-        self.label_recipeIng1_11.setText(_translate("B3GUI", "Test Liquor A"))
-        self.label_recipeIngDynamicLater_11.setText(_translate("B3GUI", "Test Liquor B"))
-        #self.label_recipeIngDynamicLater2_11.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton_4.setText(_translate("B3GUI", "Test Drink C"))
-        self.label_recipeIng1_10.setText(_translate("B3GUI", "Test Liquor A"))
-        self.label_recipeIngDynamicLater_10.setText(_translate("B3GUI", "Test Ingredient A"))
-        #self.label_recipeIngDynamicLater2_10.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton.setText(_translate("B3GUI", "Test Drink D"))
-        self.label_recipeIng1_12.setText(_translate("B3GUI", "Test Liquor B"))
-        self.label_recipeIngDynamicLater_12.setText(_translate("B3GUI", "Ingredient B"))
-        #self.label_recipeIngDynamicLater2_12.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton_3.setText(_translate("B3GUI", "Test Drink A"))
-        self.label_recipeIng1.setText(_translate("B3GUI", "Test Liquor A"))
-        #self.label_recipeIngDynamicLater.setText(_translate("B3GUI", "Ingredient 2"))
-        #self.label_recipeIngDynamicLater2.setText(_translate("B3GUI", "Ingredient 3"))'''
-        '''
-        self.label_recipeIngName_13.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_13.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_13.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_13.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_14.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_14.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_14.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_14.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_15.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_15.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_15.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_15.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_2.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_2.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_2.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_2.setText(_translate("B3GUI", "Ingredient 3"))
-        
-        self.pushButton_menuLeft.setText(_translate("B3GUI", "<-------"))
-        self.pushButton_menuRight.setText(_translate("B3GUI", "------->"))
-        self.label_51.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_52.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_53.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_54.setText(_translate("B3GUI", "Temp Custom Drank Layout"))
-        self.label_55.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_56.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_57.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_58.setText(_translate("B3GUI", "This is not currently finalized"))'''
         self.pushButton_config_toMain.setText(_translate("B3GUI", "Return"))
 
     def menuRefresh(self):
@@ -1687,50 +1673,26 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         else:
             self.pushButton_menuRight.deleteLater()
             self.pushButton_menuLeft.deleteLater()
-
-        '''for i in reversed(range(layout.count())):
-            if not(layout.itemAt(i).isEmpty()):
-                layout.itemAt(i).widget().setParent(None)'''
-
+        print("test")
+        
         for i in range (0, self.stackedMenuWidget.count()):
             print("deleted page " + str(i))
             self.stackedMenuWidget.widget(i).deleteLater()
+        
+        self.stackedMenuWidget = self.menuGenerate()
+        self.stackedMenuWidget.setGeometry(QtCore.QRect(94, 16, 451, 417))
+        self.stackedMenuWidget.setObjectName("stackedMenuWidget")
+        self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
+
+        if self.stackedMenuWidget.count() != 1:
+            self.pushButton_menuRight = QtWidgets.QPushButton(self.page_menuWindow)
+            self.pushButton_menuRight.setGeometry(QtCore.QRect(375, 440, 76, 33))
+            self.pushButton_menuRight.setPalette(self.paletteButton)
+            self.pushButton_menuRight.setObjectName("pushButton_menuRight")
+            self.pushButton_menuRight.setText("------->")
+            self.pushButton_menuRight.clicked.connect(self.menuRight)
 
     def toMenu(self):
-        if self.menuUpdateFlag == 1:
-            print("test toMenu")
-            self.menuUpdateFlag = 0
-
-            if (self.stackedMenuWidget.count() ==1):
-                pass
-            elif (self.stackedMenuWidget.currentIndex() == 0):
-                self.pushButton_menuRight.deleteLater()
-            elif((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
-                self.pushButton_menuLeft.deleteLater()
-            else:
-                self.pushButton_menuRight.deleteLater()
-                self.pushButton_menuLeft.deleteLater()
-            print("test")
-            
-            for i in range (0, self.stackedMenuWidget.count()):
-                print("deleted page " + str(i))
-                self.stackedMenuWidget.widget(i).deleteLater()
-
-            #self.stackedMenuWidget.deleteLater()
-            
-            self.stackedMenuWidget = self.menuGenerate()
-            self.stackedMenuWidget.setGeometry(QtCore.QRect(94, 16, 451, 417))
-            self.stackedMenuWidget.setObjectName("stackedMenuWidget")
-            self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
-
-            if self.stackedMenuWidget.count() != 1:
-                self.pushButton_menuRight = QtWidgets.QPushButton(self.page_menuWindow)
-                self.pushButton_menuRight.setGeometry(QtCore.QRect(375, 440, 76, 33))
-                self.pushButton_menuRight.setPalette(self.paletteButton)
-                self.pushButton_menuRight.setObjectName("pushButton_menuRight")
-                self.pushButton_menuRight.setText("------->")
-                self.pushButton_menuRight.clicked.connect(self.menuRight)
-                
         self.stackedWidget.setCurrentIndex(1)
 
     def toConfig(self):
@@ -1744,7 +1706,10 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedWidget.setCurrentIndex(0)
 
         
-    def cupGift(self): ##purely for test purposes in toggling cup present flag
+    def cupGift(self):
+        ##purely for test purposes in toggling cup present flag
+        ##this will eventually be removed
+        #ideally will replace with some setting toggle
         global cupPresent
         temp = not cupPresent
         print("~~MQTT~~ Received message \"" + "1" + "\" from topic \"" + "alfred/cupStatus" + "\".")
