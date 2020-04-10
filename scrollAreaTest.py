@@ -1,6 +1,6 @@
 
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, QGroupBox, QLabel, QPushButton, QFormLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, QGroupBox, QLabel, QPushButton, QGridLayout
 import sys
 class Window(QWidget):
     def __init__(self, val):
@@ -13,22 +13,28 @@ class Window(QWidget):
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        formLayout =QFormLayout()
+        self.gridLayout =QGridLayout()
         groupBox = QGroupBox("This Is Group Box")
         labelLis = []
         comboList = []
         for i in  range(val):
-            labelLis.append(QLabel("Label " + str(i)))
-            comboList.append(QPushButton("Click Me " + str(i)))
-            formLayout.addRow(labelLis[i], comboList[i])
+            l = QLabel("Label " + str(i))
+            p = QPushButton("Click Me " + str(i))
+            if i == 12:
+                p.clicked.connect(self.deleteLayout)
+            self.gridLayout.addWidget(l, i, 0, 1, 1)
+            self.gridLayout.addWidget(p, i, 1, 1, 1)
+        #self.gridLayout.insertRow(0, QLabel("Label 00"), QPushButton("Click Me 00"))
+        self.gridLayout.itemAtPosition(0,0).widget().deleteLater()
+        self.gridLayout.itemAtPosition(0,1).widget().deleteLater()
+        #self.gridLayout.insertRow(10, QLabel("Label in 10"), QPushButton("Click Me in 10"))
 
-        formLayout.insertRow(0, QLabel("Label 01"), QPushButton("Click Me 01"))
-        formLayout.itemAt(21).widget().deleteLater()
         
-        #formLayout.addRow("test", fghj)
+        
+        #gridLayout.addRow("test", fghj)
 
         
-        groupBox.setLayout(formLayout)
+        groupBox.setLayout(self.gridLayout)
         scroll = QScrollArea()
         scroll.setWidget(groupBox)
         scroll.setWidgetResizable(True)
@@ -36,6 +42,12 @@ class Window(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(scroll)
         self.show()
+
+    def deleteLayout(self):
+        while self.gridLayout.count !=0:
+            return nothing
+        self.gridLayout.destroy()
+        
 App = QApplication(sys.argv)
-window = Window(10)
+window = Window(15)
 sys.exit(App.exec())
