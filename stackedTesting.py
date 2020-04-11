@@ -97,7 +97,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVER
+    ip = MQTT_SERVERC
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -148,7 +148,7 @@ def updateSQL(self, table, updatedInfo, column, conditional, condition):
         else:
             conditionCheck = str(condition)
         cursor.execute('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
-                       str(column) + str(condtional) + conditionCheck)
+                       str(column) + str(conditional) + conditionCheck)
         value = cursor.fetchall()
         return value
     except Error as e:
@@ -1127,43 +1127,13 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 pushButton.setObjectName(menuName + " pushButton")
                 pushButton.setText(_translate("B3GUI", menuName))
                 pushButton.clicked.connect(self.sendOrder)
-                menuItem.addWidget(pushButton)              
+                menuItem.addWidget(pushButton)
+                
                 line_menuRecipe = QtWidgets.QFrame()
                 line_menuRecipe.setFrameShape(QtWidgets.QFrame.HLine)
                 line_menuRecipe.setFrameShadow(QtWidgets.QFrame.Sunken)
                 line_menuRecipe.setObjectName(menuName + " line_menuRecipe")
                 menuItem.addWidget(line_menuRecipe)
-
-                '''
-                ingItemWidget = QtWidgets.QWidget()
-                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-                sizePolicy.setHorizontalStretch(0)
-                sizePolicy.setVerticalStretch(0)
-                sizePolicy.setHeightForWidth(ingItemWidget.sizePolicy().hasHeightForWidth())
-                ingItemWidget.setSizePolicy(sizePolicy)
-                ingItemWidget.setMinimumSize(QtCore.QSize(0, 70))
-                ingItemWidget.setObjectName(menuName + " Ingredient List Widget")
-                
-                ingItem = QtWidgets.QVBoxLayout(ingItemWidget)
-                ingItem.setObjectName(menuName + " Ingredient List")
-
-                for j in range(0,i[2]):
-                    ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
-                    ingName = str(ing[0][3])
-                    
-                    label_recipeIng = QtWidgets.QLabel()
-                    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-                    sizePolicy.setHorizontalStretch(0)
-                    sizePolicy.setVerticalStretch(0)
-                    sizePolicy.setHeightForWidth(label_recipeIng.sizePolicy().hasHeightForWidth())
-                    label_recipeIng.setSizePolicy(sizePolicy)
-                    label_recipeIng.setMinimumSize(QtCore.QSize(0, 13))
-                    label_recipeIng.setObjectName("label_recipeIng" + str(int(j) + 1))
-                    label_recipeIng.setText(_translate("B3GUI", ingName))
-                    ingItem.addWidget(label_recipeIng)
-
-                #ingItemWidget.addLayout(ingItem)
-                menuItem.addWidget(ingItemWidget)'''
 
                 label_recipeIng = QtWidgets.QLabel()
                 sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -1194,9 +1164,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 if (menuCount%2 == 1):
                     spacerItem = QtWidgets.QSpacerItem(13, 32, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
                     gridLayout_menu.addItem(spacerItem, (int(((menuCount%4)-1)/2)), 1, 1, 1)
+                    #tiny horizontal spacer for column seperation
 
-                if (menuCount%4 == 3):
-                    gridLayout_menu.itemAtPosition(0, 0).invalidate()
+                #if (menuCount%4 == 3):
+                    #gridLayout_menu.itemAtPosition(0, 0).invalidate()
+                    #i have no idea what this is??
     
                 menuCount += 1
         if (menuCount%4 == 1 or menuCount%4 == 2):
@@ -1211,6 +1183,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             print("   ERROR: you idiot you have nothing configured")
         stackedWidget.setCurrentIndex(0)
         stackedWidget.menuCount = menuCount
+        
         return stackedWidget
     ##stackedWidget.count() returns for loop viable thing for making dynamic menu page change buttons
     
@@ -1256,48 +1229,51 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             ingName = ""
             ingAmt = ""
                     
-            '''for j in range(0,i[2]):
-                        ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
-                        ingName = str(ing[0][3])
-
-                        temp = (ingString + "<p>" + ingName + "</p>")
-                        ingString = temp'''
-
-                    
             for i in orderRaw:
+                pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
+                updateInfo = ("inventory = " + str(int(pumpConfig[0][3]) - int(i[4])))
+                updateSQL(cursor, "config", updateInfo, "ingredient_name", "=", str(i[3]))
+                
                 temp = (ingName + "<p>" + str(i[3]) + "</p>")
                 ingName = temp
                 temp = (ingAmt + "<p>" + str(i[4]) + " mL" + "</p>")
                 ingAmt = temp
 
-                pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
                 if order == None:
                     temp = ("M" + str(pumpConfig[0][0]), i[4])
                     order = temp
                 else:
                     temp = order, ("M" + str(pumpConfig[0][0]), i[4])
                     order = temp
-            print(len(order))
-
             if len(orderRaw) == 1:
                 temp = order
                 convOrder = (temp,)
                 order = (str(convOrder).rstrip(",)") + "))")
                 
-                print(convOrder)
             self.label_curOrder_IngName.setText(_translate("B3GUI", ingName))
             self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
             global bartOrder
             bartOrder = order
-            #print(order)
+            print(order)
             pubMQTT(client, ORDER, order)
+            self.configRefresh()
+            self.menuRefresh()
+            
             self.toPrimary()
         else:
             print("Please place a cup in Alfred the Butler's tray.")
 
     def quickOrder(self):
         if bartOrder != "":
+            print(bartOrder)
             pubMQTT(client, ORDER, bartOrder)
+
+            pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
+            updateInfo = ("inventory = '" + str(int(pumpConfig[0][3]) - int(i[4])))
+            updateSQL(cursor, "config", updateInfo, "ingredient_name", "=", str(i[3]))
+
+            self.configRefresh()
+            self.configAddConfirm.destroy()
             self.toPrimary()
         else:
             print("There has not been a previous order yet!")
@@ -1397,7 +1373,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.menuRefresh()
         self.customReset()
         time.sleep(.8)
-        self.stackedWidget.setCurrentIndex(1)
+        self.toMenu()
         self.customAddConfirm.destroy()
 
     def configGenerate(self):
@@ -1665,26 +1641,33 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def menuRefresh(self):
         if (self.stackedMenuWidget.count() ==1):
+            print("none")
             pass
         elif (self.stackedMenuWidget.currentIndex() == 0):
             self.pushButton_menuRight.deleteLater()
+            print("1")
         elif((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
             self.pushButton_menuLeft.deleteLater()
+            print("last")
         else:
             self.pushButton_menuRight.deleteLater()
             self.pushButton_menuLeft.deleteLater()
+            print("mid")
         print("test")
         
         for i in range (0, self.stackedMenuWidget.count()):
             print("deleted page " + str(i))
             self.stackedMenuWidget.widget(i).deleteLater()
-        
+
+        self.stackedMenuWidget.deleteLater()
+
         self.stackedMenuWidget = self.menuGenerate()
-        self.stackedMenuWidget.setGeometry(QtCore.QRect(94, 16, 451, 417))
+        self.stackedMenuWidget.setGeometry(QtCore.QRect(114, 16, 451, 417))#90->114 change back eventually
         self.stackedMenuWidget.setObjectName("stackedMenuWidget")
         self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
         if self.stackedMenuWidget.count() != 1:
+            print("test")
             self.pushButton_menuRight = QtWidgets.QPushButton(self.page_menuWindow)
             self.pushButton_menuRight.setGeometry(QtCore.QRect(375, 440, 76, 33))
             self.pushButton_menuRight.setPalette(self.paletteButton)
@@ -1716,7 +1699,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         cupPresent = temp
 
     def dock(self):
-        self.configRefresh()
+        self.menuRefresh()
         pubMQTT(client, DOCK, "hey this is the emergency dock signal")
         
     def exitPopup(self):
