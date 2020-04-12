@@ -13,8 +13,8 @@ from sqlite3 import Error
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
-MQTT_SERVER = "192.168.1.73"
-MQTT_SERVERY = "172.16.210.200"
+MQTT_SERVER = "localhost"
+MQTT_SERVERP = "192.168.1.73"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
@@ -27,19 +27,21 @@ cursor = None
 #### TOPICS ####
 ORDER = "app/order"
 DOCK = "app/emergencyDock"
-BARTSTATUS = "bart/status"
-SENSORLOAD = "alfred/sensorLoad"
 STARTSIGNAL = "app/start"
+BARTSTATUS = "bart/status"
+BARTSENSOR = "bart/alignment"
+BOTSTATUS = "bot/status"
 
 #### FLAGS  ####
-cupPresent = False
 bartConnected = "disconnected"
 bartOrder = ""
+bartAligned = False
+bartTemp = False
 
-butlerStatus = "butlerStatus"
-batteryCharge = 100
-bartAligned = None
+systemReady = True
 
+alfredLocation = ""
+botAtBar = False
 
 
 ########################## MQTT SETUP ##########################
@@ -48,18 +50,39 @@ def on_message(client, userdata, message):
     #print(message.topic+" "+str(message.payload))
     msg = str(message.payload.decode("utf-8"))
     print("~~MQTT~~ Received message \"" + msg + "\" from topic \"" + message.topic + "\".")
-        
-    if message.topic == SENSORLOAD:
-        global cupPresent
-        if float(msg) > 1:
-            cupPresent = True
-        #will need to reformat based off output from Alfred
-            
+
+    global bartConnected
+    global systemReady
+    global bartAligned
+    global botAtBar
+    global alfredLocation
+    
+     
     if message.topic == BARTSTATUS:
-        print(msg)
-        global bartConnected
+        print("Bartender is " + msg)
         bartConnected = msg
+        if msg == "intake":
+            systemReady = False
+
+    if message.topic == BARTSENSOR:
+        if msg == "true":
+            bartAligned = True
+            if (bartAligned and botAtBar and systemReady):
+                pubMQTT(client, ORDER, bartOrder)
+        else:
+            bartAligned = False
         
+        
+    if message.topic == BOTSTATUS:
+        alfredLocation = msg
+        if msg == "docked@bar":
+            botAtBar = True
+        elif msg == "docked@base":
+            time.sleep(10)
+            botAtBar = False
+            systemReady = True
+        else:
+            botAtBar = False
         
     
 def on_connect(client, userdata, flags, rc): #do this when connecting to mqtt broker
@@ -91,7 +114,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVER
+    ip = MQTT_SERVERP
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -101,7 +124,7 @@ def initMQTT(self):
             print("~~MQTT~~ Connecting...")
 
     print("~~MQTT~~ Initialized.")
-    client.subscribe([(SENSORLOAD, 1), (BARTSTATUS, 2), (STARTSIGNAL, 2)])
+    client.subscribe([(BARTSENSOR, 1), (BARTSTATUS, 2), (BOTSTATUS, 2)])
 
 ########################## SQLite3 SETUP ##########################
 
@@ -1013,53 +1036,52 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.pushButton_menuLeft.deleteLater()
             
     def sendOrder(self):
-        if cupPresent:
-            _translate = QtCore.QCoreApplication.translate
-            sender = self.sender()
-            orderName = sender.text()
-            self.label_curOrder_Name.setText(_translate("B3GUI", ("  " + str(orderName))))
-            #print(orderName)
-            orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
-            #print(orderRaw)
-            order = None
-            ingName = ""
-            ingAmt = ""
-                    
-            for i in orderRaw:
-                pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
-                updateInfo = ("inventory = " + str(int(pumpConfig[0][3]) - int(i[4])))
-                updateSQL(cursor, "config", updateInfo, "ingredient_name", "=", str(i[3]))
+        #if cupPresent:
+        _translate = QtCore.QCoreApplication.translate
+        sender = self.sender()
+        orderName = sender.text()
+        self.label_curOrder_Name.setText(_translate("B3GUI", ("  " + str(orderName))))
+        #print(orderName)
+        orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
+        #print(orderRaw)
+        order = None
+        ingName = ""
+        ingAmt = ""
                 
-                temp = (ingName + "<p>" + str(i[3]) + "</p>")
-                ingName = temp
-                temp = (ingAmt + "<p>" + str(i[4]) + " mL" + "</p>")
-                ingAmt = temp
-
-                if order == None:
-                    temp = ("M" + str(pumpConfig[0][0]), i[4])
-                    order = temp
-                else:
-                    temp = order, ("M" + str(pumpConfig[0][0]), i[4])
-                    order = temp
-            if len(orderRaw) == 1:
-                temp = order
-                convOrder = (temp,)
-                order = (str(convOrder).rstrip(",)") + "))")
-                
-            self.label_curOrder_IngName.setText(_translate("B3GUI", ingName))
-            self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
-            global bartOrder
-            bartOrder = order
-            print(order)
-            print(bartOrder)
-            self.startButler()
-            self.pubOrder() #this will later be moved to an mqtt thing)
-            self.configRefresh()
-            print(self.page_menuWindow.isAncestorOf(self.stackedMenuWidget))
+        for i in orderRaw:
+            pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
+            updateInfo = ("inventory = " + str(int(pumpConfig[0][3]) - int(i[4])))
+            updateSQL(cursor, "config", updateInfo, "ingredient_name", "=", str(i[3]))
             
-            self.toPrimary()
-        else:
-            print("Please place a cup in Alfred the Butler's tray.")
+            temp = (ingName + "<p>" + str(i[3]) + "</p>")
+            ingName = temp
+            temp = (ingAmt + "<p>" + str(i[4]) + " mL" + "</p>")
+            ingAmt = temp
+
+            if order == None:
+                temp = ("M" + str(pumpConfig[0][0]), i[4])
+                order = temp
+            else:
+                temp = order, ("M" + str(pumpConfig[0][0]), i[4])
+                order = temp
+        if len(orderRaw) == 1:
+            temp = order
+            convOrder = (temp,)
+            order = (str(convOrder).rstrip(",)") + "))")
+            
+        self.label_curOrder_IngName.setText(_translate("B3GUI", ingName))
+        self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
+        global bartOrder
+        bartOrder = order
+        print(order)
+        print(bartOrder)
+        self.startButler()
+        self.configRefresh()
+        print(self.page_menuWindow.isAncestorOf(self.stackedMenuWidget))
+        
+        self.toPrimary()
+        #else:
+            #print("Please place a cup in Alfred the Butler's tray.")
 
     def quickOrder(self):
         if bartOrder != "":
@@ -1073,10 +1095,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.toPrimary()
         else:
             print("There has not been a previous order yet!")
-
-    def pubOrder(self):
-        pubMQTT(client, ORDER, bartOrder)
-
     def customReset(self):
         for i in range(1, self.gridLayout_custom.rowCount() - 2):
             self.gridLayout_custom.itemAtPosition(i, 0).widget().clear()
