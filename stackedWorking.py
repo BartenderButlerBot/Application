@@ -13,7 +13,7 @@ from sqlite3 import Error
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 client = None 
-MQTT_SERVER = "192.168.1.78"
+MQTT_SERVER = "192.168.1.73"
 MQTT_SERVERY = "172.16.210.200"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
@@ -48,12 +48,6 @@ def on_message(client, userdata, message):
     #print(message.topic+" "+str(message.payload))
     msg = str(message.payload.decode("utf-8"))
     print("~~MQTT~~ Received message \"" + msg + "\" from topic \"" + message.topic + "\".")
-
-
-    if message.topic == ORDER:
-        global bartenderOrder
-        bartenderOrder = msg
-        #print("order topic test")
         
     if message.topic == SENSORLOAD:
         global cupPresent
@@ -97,7 +91,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVERC
+    ip = MQTT_SERVER
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -123,21 +117,49 @@ def insertSQL(self, tableName, columnNames, values):
         cursor.execute("INSERT INTO " + str(tableName) + "(" + 
                        str(columnNames) + ") values(" + str(values) + ")")
         print("Successfully inserted \"" + str(values) + 
-              "\" into table \"" + str(tableName)) + "\""
+              "\" into table \"" + str(tableName) + "\"")
         sqlConnect.commit()
     except Error as e:
         print(e)
 
 def fetchSQL(self, table, column, condtional, condition):
     try:
+        if isinstance(condition, str):
+            conditionCheck = '\'' + str(condition) + '\''
+        else:
+            conditionCheck = str(condition)
         cursor.execute('SELECT * FROM ' + str(table) + ' WHERE ' + 
-                       str(column) + str(condtional) +
-                       '\'' + str(condition) + '\'')
+                       str(column) + str(condtional) + conditionCheck)
         value = cursor.fetchall()
         return value
     except Error as e:
         print(e)
-    
+
+def updateSQL(self, table, updatedInfo, column, conditional, condition):
+    try:
+        if isinstance(condition, str):
+            conditionCheck = '\'' + str(condition) + '\''
+        else:
+            conditionCheck = str(condition)
+        cursor.execute('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
+                       str(column) + str(conditional) + conditionCheck)
+        sqlConnect.commit()        
+    except Error as e:
+        print(e)
+        
+def deleteSQL(self, table, column, conditional, condition):
+    try:
+        if isinstance(condition, str):
+            conditionCheck = '\'' + str(condition) + '\''
+        else:
+            conditionCheck = str(condition)
+        cursor.execute('DELETE FROM ' + str(table) + ' WHERE ' + 
+                       str(column) + str(condtional) + conditionCheck)
+        sqlConnect.commit()
+        print("Successfully deleted all values in table \"" + str(table) + "\"")
+    except Error as e:
+        print(e)
+        
 def closeSQL(connect):
     try: 
         print("~~SQL~~ Closed successfully.")
@@ -170,19 +192,70 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         brush.setStyle(QtCore.Qt.SolidPattern)
         self.paletteButton.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
 
+        self.paletteWButton = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWButton.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
+        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWButton.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
+        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWButton.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
 
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
+        self.paletteWidget = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
         brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 85, 85))
+        self.paletteWidget.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
+        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
         brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        self.setPalette(palette)
+        self.paletteWidget.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
+        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWidget.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
+        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWidget.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
+        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWidget.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
+        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteWidget.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
+
+        self.palettePBar = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(175, 50, 25))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
+        brush = QtGui.QBrush(QtGui.QColor(225, 225, 225))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(175, 50, 25))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
+        brush = QtGui.QBrush(QtGui.QColor(225, 225, 225))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.HighlightedText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
+        brush = QtGui.QBrush(QtGui.QColor(225, 225, 225))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.palettePBar.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
+
+        self.paletteLine = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(175, 50, 25))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteLine.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Light, brush)
+        brush = QtGui.QBrush(QtGui.QColor(175, 50, 25))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteLine.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Light, brush)
+        brush = QtGui.QBrush(QtGui.QColor(175, 50, 25))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        self.paletteLine.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Light, brush)
         
         self.stackedWidget = QtWidgets.QStackedWidget(self)
         self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 640, 480))
@@ -211,6 +284,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.setupPrimary()
         #self.showFullScreen()
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.configRefresh()
+        timer_battery = QtCore.QTimer(self)
+        timer_battery.setInterval(72000)
+        timer_battery.start()
+        timer_battery.timeout.connect(self.batteryDecay)
         self.show()
     
     def setupPrimary(self):
@@ -226,269 +304,65 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         sizePolicy.setHeightForWidth(self.page.sizePolicy().hasHeightForWidth())
         self.page.setSizePolicy(sizePolicy)
         self.page.setObjectName("page")
-        self.pushButton_config = QtWidgets.QPushButton(self.page)
-        self.pushButton_config.setGeometry(QtCore.QRect(513, 24, 101, 49))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(186, 189, 182))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        self.pushButton_config.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Main")
-        self.pushButton_config.setFont(font)
-        self.pushButton_config.setObjectName("pushButton_config")
+        
         self.pushButton_toMenu = QtWidgets.QPushButton(self.page)
         self.pushButton_toMenu.setGeometry(QtCore.QRect(25, 25, 429, 161))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        self.pushButton_toMenu.setPalette(palette)
+        self.pushButton_toMenu.setPalette(self.paletteButton)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
+        font.setFamily("STLiti")
         font.setPointSize(60)
         self.pushButton_toMenu.setFont(font)
         self.pushButton_toMenu.setObjectName("pushButton_toMenu")
-        self.progressBar_config_dynamicLater2 = QtWidgets.QProgressBar(self.page)
-        self.progressBar_config_dynamicLater2.setGeometry(QtCore.QRect(556, 176, 74, 25))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, brush)
-        self.progressBar_config_dynamicLater2.setPalette(palette)
+        self.pushButton_curOrder = QtWidgets.QPushButton(self.page)
+        self.pushButton_curOrder.setGeometry(QtCore.QRect(25, 211, 202, 100))
+        self.pushButton_curOrder.setPalette(self.paletteButton)
         font = QtGui.QFont()
-        font.setFamily("Piboto Thin")
-        self.progressBar_config_dynamicLater2.setFont(font)
-        self.progressBar_config_dynamicLater2.setProperty("value", 100)
-        self.progressBar_config_dynamicLater2.setObjectName("progressBar_config_dynamicLater2")
-        self.progressBar_config_dynamicLater4 = QtWidgets.QProgressBar(self.page)
-        self.progressBar_config_dynamicLater4.setGeometry(QtCore.QRect(556, 240, 74, 25))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, brush)
-        self.progressBar_config_dynamicLater4.setPalette(palette)
+        font.setFamily("STLiti")
+        font.setPointSize(26)
+        self.pushButton_curOrder.setFont(font)
+        self.pushButton_curOrder.setObjectName("pushButton_curOrder")
+        self.widget_curOrder = QtWidgets.QListWidget(self.page)
+        self.widget_curOrder.setGeometry(QtCore.QRect(252, 211, 202, 201))
+        self.widget_curOrder.setPalette(self.paletteWidget)
+        self.widget_curOrder.setObjectName("widget_curOrder")
+        self.label_curOrder = QtWidgets.QLabel(self.page)
+        self.label_curOrder.setGeometry(QtCore.QRect(259, 227, 170, 22))
         font = QtGui.QFont()
-        font.setFamily("Piboto Thin")
-        self.progressBar_config_dynamicLater4.setFont(font)
-        self.progressBar_config_dynamicLater4.setProperty("value", 100)
-        self.progressBar_config_dynamicLater4.setObjectName("progressBar_config_dynamicLater4")
-        self.label_config_dynamicLater3 = QtWidgets.QLabel(self.page)
-        self.label_config_dynamicLater3.setGeometry(QtCore.QRect(488, 208, 56, 25))
+        font.setFamily("STLiti")
+        font.setPointSize(16)
+        self.label_curOrder.setFont(font)
+        self.label_curOrder.setObjectName("label_curOrder")
+        self.label_curOrder_Name = QtWidgets.QLabel(self.page)
+        self.label_curOrder_Name.setGeometry(QtCore.QRect(261, 250, 170, 28))
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        self.label_config_dynamicLater3.setFont(font)
-        self.label_config_dynamicLater3.setObjectName("label_config_dynamicLater3")
-        self.progressBar_config_dynamicLater1 = QtWidgets.QProgressBar(self.page)
-        self.progressBar_config_dynamicLater1.setGeometry(QtCore.QRect(556, 144, 74, 25))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, brush)
-        self.progressBar_config_dynamicLater1.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("Piboto Thin")
-        self.progressBar_config_dynamicLater1.setFont(font)
-        self.progressBar_config_dynamicLater1.setProperty("value", 94)
-        self.progressBar_config_dynamicLater1.setObjectName("progressBar_config_dynamicLater1")
-        self.label_imageB3 = QtWidgets.QLabel(self.page)
-        self.label_imageB3.setGeometry(QtCore.QRect(575, 432, 56, 22))
-        self.label_imageB3.setText("")
-        self.label_imageB3.setObjectName("label_imageB3")
+        font.setFamily("STLiti")
+        font.setPointSize(14)
+        self.label_curOrder_Name.setFont(font)
+        self.label_curOrder_Name.setObjectName("label_curOrder_Name")
         self.line = QtWidgets.QFrame(self.page)
         self.line.setGeometry(QtCore.QRect(259, 275, 189, 13))
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setPalette(self.paletteLine)
         self.line.setObjectName("line")
-        self.label_config_dynamicLater1 = QtWidgets.QLabel(self.page)
-        self.label_config_dynamicLater1.setGeometry(QtCore.QRect(488, 144, 56, 25))
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        self.label_config_dynamicLater1.setFont(font)
-        self.label_config_dynamicLater1.setObjectName("label_config_dynamicLater1")
-        self.widget_rightInfo = QtWidgets.QListWidget(self.page)
-        self.widget_rightInfo.setGeometry(QtCore.QRect(480, -1, 161, 482))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_rightInfo.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        self.widget_rightInfo.setFont(font)
-        self.widget_rightInfo.setObjectName("widget_rightInfo")
-        self.widget_curOrder = QtWidgets.QListWidget(self.page)
-        self.widget_curOrder.setGeometry(QtCore.QRect(252, 211, 202, 201))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 85, 85))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 85, 85))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 85, 85))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_curOrder.setPalette(palette)
-        self.widget_curOrder.setObjectName("widget_curOrder")
-        self.label_config_dynamicLater4 = QtWidgets.QLabel(self.page)
-        self.label_config_dynamicLater4.setGeometry(QtCore.QRect(488, 240, 56, 25))
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        self.label_config_dynamicLater4.setFont(font)
-        self.label_config_dynamicLater4.setObjectName("label_config_dynamicLater4")
+        self.label_curOrder_IngName = QtWidgets.QLabel(self.page)
+        self.label_curOrder_IngName.setGeometry(QtCore.QRect(261, 291, 96, 120))
+        self.label_curOrder_IngName.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_curOrder_IngName.setObjectName("label_curOrder_IngName")
         self.label_curOrder_IngAmount = QtWidgets.QLabel(self.page)
         self.label_curOrder_IngAmount.setGeometry(QtCore.QRect(371, 291, 76, 72))
         self.label_curOrder_IngAmount.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_curOrder_IngAmount.setObjectName("label_curOrder_IngAmount")
-        self.pushButton_curOrder = QtWidgets.QPushButton(self.page)
-        self.pushButton_curOrder.setGeometry(QtCore.QRect(25, 211, 202, 96))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.pushButton_curOrder.setPalette(palette)
+        
+        '''self.pushButton_advTools = QtWidgets.QPushButton(self.page)
+        self.pushButton_advTools.setGeometry(QtCore.QRect(25, 332, 60, 80))
+        self.pushButton_advTools.setPalette(self.paletteButton)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        font.setPointSize(26)
-        self.pushButton_curOrder.setFont(font)
-        self.pushButton_curOrder.setObjectName("pushButton_curOrder")
-        self.pushButton_quit = QtWidgets.QPushButton(self.page)
-        self.pushButton_quit.setGeometry(QtCore.QRect(167, 332, 60, 80))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.pushButton_quit.setPalette(palette)
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Main")
-        self.pushButton_quit.setFont(font)
-        self.pushButton_quit.setObjectName("pushButton_quit")
-        self.label_config = QtWidgets.QLabel(self.page)
-        self.label_config.setGeometry(QtCore.QRect(488, 112, 56, 25))
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        self.label_config.setFont(font)
-        self.label_config.setObjectName("label_config")
-        self.label_curOrder = QtWidgets.QLabel(self.page)
-        self.label_curOrder.setGeometry(QtCore.QRect(259, 227, 170, 22))
-        font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
-        self.label_curOrder.setFont(font)
-        self.label_curOrder.setObjectName("label_curOrder")
+        font.setFamily("STLiti")
+        self.pushButton_advTools.setFont(font)
+        self.pushButton_advTools.setObjectName("pushButton_advTools")'''
         self.pushButton_dock = QtWidgets.QPushButton(self.page)
-        self.pushButton_dock.setGeometry(QtCore.QRect(96, 332, 60, 80))
+        self.pushButton_dock.setGeometry(QtCore.QRect(25, 328, 95, 84))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -510,155 +384,174 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
         self.pushButton_dock.setPalette(palette)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Main")
+        font.setFamily("STLiti")
+        font.setPointSize(20)
         self.pushButton_dock.setFont(font)
         self.pushButton_dock.setObjectName("pushButton_dock")
-        self.progressBar_batteryCharge = QtWidgets.QProgressBar(self.page)
-        self.progressBar_batteryCharge.setGeometry(QtCore.QRect(500, 432, 63, 25))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(115, 210, 22))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(115, 210, 22))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
-        self.progressBar_batteryCharge.setPalette(palette)
-        self.progressBar_batteryCharge.setProperty("value", 100)
-        self.progressBar_batteryCharge.setObjectName("progressBar_batteryCharge")
-        self.progressBar_config_dynamicLater3 = QtWidgets.QProgressBar(self.page)
-        self.progressBar_config_dynamicLater3.setGeometry(QtCore.QRect(556, 208, 74, 25))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, brush)
-        self.progressBar_config_dynamicLater3.setPalette(palette)
+        self.pushButton_quit = QtWidgets.QPushButton(self.page)
+        self.pushButton_quit.setGeometry(QtCore.QRect(132, 328, 95, 84))
+        self.pushButton_quit.setPalette(self.paletteButton)
         font = QtGui.QFont()
-        font.setFamily("Piboto Thin")
-        self.progressBar_config_dynamicLater3.setFont(font)
-        self.progressBar_config_dynamicLater3.setProperty("value", 100)
-        self.progressBar_config_dynamicLater3.setObjectName("progressBar_config_dynamicLater3")
-        self.label_curOrder_Name = QtWidgets.QLabel(self.page)
-        self.label_curOrder_Name.setGeometry(QtCore.QRect(261, 250, 170, 28))
+        font.setFamily("STLiti")
+        font.setPointSize(20)
+        self.pushButton_quit.setFont(font)
+        self.pushButton_quit.setObjectName("pushButton_quit")
+        
+        
+        
+        
+        
+        self.widget_rightInfo = QtWidgets.QListWidget(self.page)
+        self.widget_rightInfo.setGeometry(QtCore.QRect(480, -1, 161, 482))
+        self.widget_rightInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Main")
-        self.label_curOrder_Name.setFont(font)
-        self.label_curOrder_Name.setObjectName("label_curOrder_Name")
-        self.progressBar_config = QtWidgets.QProgressBar(self.page)
-        self.progressBar_config.setGeometry(QtCore.QRect(556, 112, 74, 25))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(252, 233, 79))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.HighlightedText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(145, 145, 145))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText, brush)
-        self.progressBar_config.setPalette(palette)
+        font.setFamily("STLiti")
+        self.widget_rightInfo.setFont(font)
+        self.widget_rightInfo.setObjectName("widget_rightInfo")
+
+        self.pushButton_config = QtWidgets.QPushButton(self.page)
+        self.pushButton_config.setGeometry(QtCore.QRect(513, 24, 101, 49))
+        self.pushButton_config.setPalette(self.paletteWButton)
         font = QtGui.QFont()
-        font.setFamily("Piboto Thin")
-        self.progressBar_config.setFont(font)
-        self.progressBar_config.setProperty("value", 80)
-        self.progressBar_config.setObjectName("progressBar_config")
-        self.label_curOrder_IngName = QtWidgets.QLabel(self.page)
-        self.label_curOrder_IngName.setGeometry(QtCore.QRect(261, 291, 96, 120))
-        self.label_curOrder_IngName.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
-        self.label_curOrder_IngName.setObjectName("label_curOrder_IngName")
-        self.label_config_dynamicLater2 = QtWidgets.QLabel(self.page)
-        self.label_config_dynamicLater2.setGeometry(QtCore.QRect(488, 176, 56, 25))
+        font.setFamily("STLiti")
+        font.setPointSize(12)
+        font.setWeight(QtGui.QFont.Medium)
+        self.pushButton_config.setFont(font)
+        self.pushButton_config.setObjectName("pushButton_config")
+
+        self.formLayoutWidget_progress = QtWidgets.QWidget(self.page)
+        self.formLayoutWidget_progress.setGeometry(QtCore.QRect(480, 83, 155, 180))
+        self.formLayoutWidget_progress.setObjectName("self.formLayoutWidget_progress")
+        formLayout_progress = QtWidgets.QFormLayout(self.formLayoutWidget_progress)
+        formLayout_progress.setVerticalSpacing(20)
+        formLayout_progress.setFormAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignCenter)
+        formLayout_progress.setContentsMargins(0, 0, 0, 0)
+        formLayout_progress.setObjectName("formLayout_progress")
+
+        label_progress = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_progress.sizePolicy().hasHeightForWidth())
+        label_progress.setSizePolicy(sizePolicy)
+        label_progress.setWordWrap(True)
+        label_progress.setMinimumSize(QtCore.QSize(75, 20))
+        label_progress.setAlignment(QtCore.Qt.AlignCenter)
         font = QtGui.QFont()
         font.setFamily("MathJax_Caligraphic")
-        self.label_config_dynamicLater2.setFont(font)
-        self.label_config_dynamicLater2.setObjectName("label_config_dynamicLater2")
-        self.pushButton_advTools = QtWidgets.QPushButton(self.page)
-        self.pushButton_advTools.setGeometry(QtCore.QRect(25, 332, 60, 80))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.pushButton_advTools.setPalette(palette)
+        label_progress.setFont(font)
+        label_progress.setObjectName("label_progress")
+        label_progress.setText(_translate("B3GUI", "Ing. A"))
+        formLayout_progress.setWidget(0, QtWidgets.QFormLayout.LabelRole, label_progress)
+        
+        progressBar_progress = QtWidgets.QProgressBar()
+        progressBar_progress.setMinimumSize(QtCore.QSize(0, 25))
+        progressBar_progress.setMaximumSize(QtCore.QSize(69, 16777215))
+        progressBar_progress.setPalette(self.palettePBar)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Main")
-        self.pushButton_advTools.setFont(font)
-        self.pushButton_advTools.setObjectName("pushButton_advTools")
+        font.setFamily("Piboto Thin")
+        progressBar_progress.setFont(font)
+        progressBar_progress.setProperty("value", 100)
+        progressBar_progress.setObjectName("progressBar_progress")
+        formLayout_progress.setWidget(0, QtWidgets.QFormLayout.FieldRole, progressBar_progress)
+
+        label_progress_1 = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_progress_1.sizePolicy().hasHeightForWidth())
+        label_progress_1.setSizePolicy(sizePolicy)
+        label_progress_1.setWordWrap(True)
+        label_progress_1.setMinimumSize(QtCore.QSize(75, 20))
+        label_progress_1.setAlignment(QtCore.Qt.AlignCenter)
+        font = QtGui.QFont()
+        font.setFamily("MathJax_Caligraphic")
+        label_progress_1.setFont(font)
+        label_progress_1.setObjectName("label_progress_1")
+        label_progress_1.setText(_translate("B3GUI", "Ing. A"))
+        formLayout_progress.setWidget(1, QtWidgets.QFormLayout.LabelRole, label_progress_1)
+        
+        progressBar_progress_1 = QtWidgets.QProgressBar()
+        progressBar_progress_1.setMinimumSize(QtCore.QSize(0, 25))
+        progressBar_progress_1.setMaximumSize(QtCore.QSize(69, 16777215))
+        progressBar_progress_1.setPalette(self.palettePBar)
+        font = QtGui.QFont()
+        font.setFamily("Piboto Thin")
+        progressBar_progress_1.setFont(font)
+        progressBar_progress_1.setProperty("value", 100)
+        progressBar_progress_1.setObjectName("progressBar_progress_1")
+        formLayout_progress.setWidget(1, QtWidgets.QFormLayout.FieldRole, progressBar_progress_1)
+
+        label_progress_2 = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_progress_2.sizePolicy().hasHeightForWidth())
+        label_progress_2.setSizePolicy(sizePolicy)
+        label_progress_2.setWordWrap(True)
+        label_progress_2.setMinimumSize(QtCore.QSize(75, 20))
+        label_progress_2.setAlignment(QtCore.Qt.AlignCenter)
+        font = QtGui.QFont()
+        font.setFamily("MathJax_Caligraphic")
+        label_progress_2.setFont(font)
+        label_progress_2.setObjectName("label_progress_2")
+        label_progress_2.setText(_translate("B3GUI", "Ing. A"))
+        formLayout_progress.setWidget(2, QtWidgets.QFormLayout.LabelRole, label_progress_2)
+        
+        progressBar_progress_2 = QtWidgets.QProgressBar()
+        progressBar_progress_2.setMinimumSize(QtCore.QSize(0, 25))
+        progressBar_progress_2.setMaximumSize(QtCore.QSize(69, 16777215))
+        progressBar_progress_2.setPalette(self.palettePBar)
+        font = QtGui.QFont()
+        font.setFamily("Piboto Thin")
+        progressBar_progress_2.setFont(font)
+        progressBar_progress_2.setProperty("value", 100)
+        progressBar_progress_2.setObjectName("progressBar_progress_2")
+        formLayout_progress.setWidget(2, QtWidgets.QFormLayout.FieldRole, progressBar_progress_2)
+        
+
         self.label_batteryCharge = QtWidgets.QLabel(self.page)
         self.label_batteryCharge.setGeometry(QtCore.QRect(488, 408, 88, 22))
         font = QtGui.QFont()
-        font.setFamily("MathJax_Main")
+        font.setFamily("MathJax_Caligraphic")
         self.label_batteryCharge.setFont(font)
-        self.label_batteryCharge.setObjectName("label_batteryCharge")
+        self.label_batteryCharge.setObjectName("label_batteryCharge")       
+        self.progressBar_batteryCharge = QtWidgets.QProgressBar(self.page)
+        self.progressBar_batteryCharge.setGeometry(QtCore.QRect(500, 432, 63, 25))
+        self.progressBar_batteryCharge.setPalette(self.palettePBar)
+        self.progressBar_batteryCharge.setValue(100)
+        self.progressBar_batteryCharge.setMaximum(100)
+        self.progressBar_batteryCharge.setObjectName("progressBar_batteryCharge")
+        
+        self.label_imageB3 = QtWidgets.QLabel(self.page)
+        self.label_imageB3.setGeometry(QtCore.QRect(575, 432, 56, 22))
+        self.label_imageB3.setText("")
+        self.label_imageB3.setObjectName("label_imageB3")
+        
+        
+        
+        
+        
         self.pushButton_toMenu.raise_()
-        self.widget_rightInfo.raise_()
         self.widget_curOrder.raise_()
         self.label_curOrder_IngAmount.raise_()
         self.pushButton_curOrder.raise_()
         self.pushButton_quit.raise_()
-        self.label_config.raise_()
+        #label_progress.raise_()
         self.label_curOrder.raise_()
         self.pushButton_dock.raise_()
         self.progressBar_batteryCharge.raise_()
-        self.progressBar_config_dynamicLater3.raise_()
         self.label_curOrder_Name.raise_()
         self.label_curOrder_IngName.raise_()
-        self.label_config_dynamicLater2.raise_()
-        self.pushButton_advTools.raise_()
+        #self.pushButton_advTools.raise_()
         self.label_batteryCharge.raise_()
         self.line.raise_()
         self.label_imageB3.raise_()
-        self.label_config_dynamicLater1.raise_()
-        self.label_config_dynamicLater3.raise_()
-        self.label_config_dynamicLater4.raise_()
-        self.progressBar_config.raise_()
-        self.progressBar_config_dynamicLater1.raise_()
-        self.progressBar_config_dynamicLater2.raise_()
-        self.progressBar_config_dynamicLater4.raise_()
+        #progressBar_progress.raise_()
         self.pushButton_config.raise_()
 
         self.pushButton_dock.clicked.connect(self.dock)
-        self.pushButton_advTools.clicked.connect(self.cupGift)
+        #self.pushButton_advTools.clicked.connect(self.cupGift)
         self.pushButton_quit.clicked.connect(self.exitPopup)
         self.pushButton_curOrder.clicked.connect(self.quickOrder)
         
@@ -672,7 +565,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.page_menuWindow = QtWidgets.QWidget()   
         self.page_menuWindow.setObjectName("page_menuWindow")
 
-        self.stackedMenuWidget = self.generateMenu()
+        self.stackedMenuWidget = self.menuGenerate()
         self.stackedMenuWidget.setGeometry(QtCore.QRect(94, 16, 451, 417))
         self.stackedMenuWidget.setObjectName("stackedMenuWidget")
         self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -688,66 +581,38 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
         self.widget_menu_rightInfo = QtWidgets.QListWidget(self.page_menuWindow)
         self.widget_menu_rightInfo.setGeometry(QtCore.QRect(560, -1, 81, 482))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_menu_rightInfo.setPalette(palette)
+        self.widget_menu_rightInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
+        font.setFamily("STLiti")
         self.widget_menu_rightInfo.setFont(font)
         self.widget_menu_rightInfo.setObjectName("widget_menu_rightInfo")
         self.widget_menu_leftInfo = QtWidgets.QListWidget(self.page_menuWindow)
         self.widget_menu_leftInfo.setGeometry(QtCore.QRect(-1, -1, 81, 482))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_menu_leftInfo.setPalette(palette)
+        self.widget_menu_leftInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
+        font.setFamily("STLiti")
         self.widget_menu_leftInfo.setFont(font)
         self.widget_menu_leftInfo.setObjectName("widget_menu_leftInfo")
 
         pushButton_pageToPrimary = QtWidgets.QPushButton(self.page_menuWindow)
         pushButton_pageToPrimary.setGeometry(QtCore.QRect(8, 350, 64, 61))
-        pushButton_pageToPrimary.setPalette(self.paletteButton)
+        pushButton_pageToPrimary.setPalette(self.paletteWButton)
+        font = QtGui.QFont()
+        font.setFamily("STLiti")
+        font.setPointSize(12)
+        font.setWeight(QtGui.QFont.Medium)
+        pushButton_pageToPrimary.setFont(font)
         pushButton_pageToPrimary.setObjectName("pushButton_pageToPrimary")
-        pushButton_pageToPrimary.setText(_translate("B3GUI", "Main\nWindow"))
+        pushButton_pageToPrimary.setText(_translate("B3GUI", "Home"))
         
         pushButton_pageToCustom = QtWidgets.QPushButton(self.page_menuWindow)
         pushButton_pageToCustom.setGeometry(QtCore.QRect(8, 275, 64, 61))
-        pushButton_pageToCustom.setPalette(self.paletteButton)
+        pushButton_pageToCustom.setPalette(self.paletteWButton)
+        font = QtGui.QFont()
+        font.setFamily("STLiti")
+        font.setPointSize(12)
+        font.setWeight(QtGui.QFont.Medium)
+        pushButton_pageToCustom.setFont(font)
         pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
         pushButton_pageToCustom.setText(_translate("B3GUI", "Custom\nOrder"))
         
@@ -762,7 +627,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.page_custom.setObjectName("page_custom")
 
         self.frame_2 = QtWidgets.QFrame(self.page_custom)
-        self.frame_2.setGeometry(QtCore.QRect(95, 15, 451, 455))
+        self.frame_2.setGeometry(QtCore.QRect(94, 16, 451, 456))
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Plain)
         self.frame_2.setObjectName("frame_2")
@@ -817,6 +682,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.line_customing = QtWidgets.QFrame(self.gridLayoutWidget)
         self.line_customing.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_customing.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_customing.setPalette(self.paletteLine)
         self.line_customing.setObjectName("line_customing")
         self.gridLayout_custom.addWidget(self.line_customing, 1, 1, 1, 1)
 
@@ -835,6 +701,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.line_customing_2 = QtWidgets.QFrame(self.gridLayoutWidget)
         self.line_customing_2.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_customing_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_customing_2.setPalette(self.paletteLine)
         self.line_customing_2.setObjectName("line_customing_2")
         self.gridLayout_custom.addWidget(self.line_customing_2, 2, 1, 1, 1)
 
@@ -853,6 +720,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.line_customing_3 = QtWidgets.QFrame(self.gridLayoutWidget)
         self.line_customing_3.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_customing_3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_customing_3.setPalette(self.paletteLine)
         self.line_customing_3.setObjectName("line_customing_3")
         self.gridLayout_custom.addWidget(self.line_customing_3, 3, 1, 1, 1)
 
@@ -884,7 +752,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         sizePolicy.setHeightForWidth(self.buttonBox_custom.sizePolicy().hasHeightForWidth())
         self.buttonBox_custom.setSizePolicy(sizePolicy)
         self.buttonBox_custom.setPalette(self.paletteButton)
-        self.buttonBox_custom.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.buttonBox_custom.setOrientation(QtCore.Qt.Vertical)
         self.buttonBox_custom.setStandardButtons(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Reset)
         self.buttonBox_custom.setCenterButtons(False)
@@ -898,356 +765,91 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         
         self.widget_custom_rightInfo = QtWidgets.QListWidget(self.page_custom)
         self.widget_custom_rightInfo.setGeometry(QtCore.QRect(560, -1, 81, 482))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_custom_rightInfo.setPalette(palette)
+        self.widget_custom_rightInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
+        font.setFamily("STLiti")
         self.widget_custom_rightInfo.setFont(font)
         self.widget_custom_rightInfo.setObjectName("widget_custom_rightInfo")
         self.widget_custom_leftInfo = QtWidgets.QListWidget(self.page_custom)
         self.widget_custom_leftInfo.setGeometry(QtCore.QRect(-1, -1, 81, 482))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_custom_leftInfo.setPalette(palette)
+        self.widget_custom_leftInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
+        font.setFamily("STLiti")
         self.widget_custom_leftInfo.setFont(font)
         self.widget_custom_leftInfo.setObjectName("widget_custom_leftInfo")
 
-        self.pushButton_custom_pageToMenu = QtWidgets.QPushButton(self.page_custom)
-        self.pushButton_custom_pageToMenu.setGeometry(QtCore.QRect(8, 275, 64, 61))
-        self.pushButton_custom_pageToMenu.setPalette(self.paletteButton)
-        self.pushButton_custom_pageToMenu.setObjectName("pushButton_custom_pageToMenu")
-        self.pushButton_custom_pageToMenu.setText(_translate("B3GUI", "Menu"))
-        self.pushButton_custom_pageToPrimary = QtWidgets.QPushButton(self.page_custom)
-        self.pushButton_custom_pageToPrimary.setGeometry(QtCore.QRect(8, 350, 64, 61))
-        self.pushButton_custom_pageToPrimary.setPalette(self.paletteButton)
-        self.pushButton_custom_pageToPrimary.setObjectName("pushButton_custom_pageToPrimary")
-        self.pushButton_custom_pageToPrimary.setText(_translate("B3GUI", "Main\nWindow"))
+        pushButton_custom_pageToMenu = QtWidgets.QPushButton(self.page_custom)
+        pushButton_custom_pageToMenu.setGeometry(QtCore.QRect(8, 275, 64, 61))
+        pushButton_custom_pageToMenu.setPalette(self.paletteWButton)
+        font = QtGui.QFont()
+        font.setFamily("STLiti")
+        font.setPointSize(12)
+        font.setWeight(QtGui.QFont.Medium)
+        pushButton_custom_pageToMenu.setFont(font)
+        pushButton_custom_pageToMenu.setObjectName("pushButton_custom_pageToMenu")
+        pushButton_custom_pageToMenu.setText(_translate("B3GUI", "Menu"))
+        pushButton_custom_pageToPrimary = QtWidgets.QPushButton(self.page_custom)
+        pushButton_custom_pageToPrimary.setGeometry(QtCore.QRect(8, 350, 64, 61))
+        pushButton_custom_pageToPrimary.setPalette(self.paletteWButton)
+        font = QtGui.QFont()
+        font.setFamily("STLiti")
+        font.setPointSize(12)
+        font.setWeight(QtGui.QFont.Medium)
+        pushButton_custom_pageToPrimary.setFont(font)
+        pushButton_custom_pageToPrimary.setObjectName("pushButton_custom_pageToPrimary")
+        pushButton_custom_pageToPrimary.setText(_translate("B3GUI", "Home"))
         
         self.widget_custom_leftInfo.raise_()
         self.frame_2.raise_()
-        self.pushButton_custom_pageToMenu.raise_()
-        self.pushButton_custom_pageToPrimary.raise_()
+        pushButton_custom_pageToMenu.raise_()
+        pushButton_custom_pageToPrimary.raise_()
         self.widget_custom_rightInfo.raise_()
 
-        self.pushButton_custom_pageToMenu.clicked.connect(self.toMenu)
-        self.pushButton_custom_pageToPrimary.clicked.connect(self.toPrimary)
+        pushButton_custom_pageToMenu.clicked.connect(self.toMenu)
+        pushButton_custom_pageToPrimary.clicked.connect(self.toPrimary)
 
         self.stackedWidget.addWidget(self.page_custom)
 
         ##################### Config page #####################
         self.page_config = QtWidgets.QWidget()
         self.page_config.setObjectName("page_config")
-        self.pushButton_config_toMain = QtWidgets.QPushButton(self.page_config)
-        self.pushButton_config_toMain.setGeometry(QtCore.QRect(576, 24, 50, 55))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        self.pushButton_config_toMain.setPalette(palette)
-        self.pushButton_config_toMain.setObjectName("pushButton_config_toMain")
+        pushButton_config_toMain = QtWidgets.QPushButton(self.page_config)
+        pushButton_config_toMain.setGeometry(QtCore.QRect(576, 24, 50, 55))
+        pushButton_config_toMain.setPalette(self.paletteWButton)
+        font = QtGui.QFont()
+        font.setFamily("STLiti")
+        font.setPointSize(12)
+        font.setWeight(QtGui.QFont.Medium)
+        pushButton_config_toMain.setFont(font)
+        pushButton_config_toMain.setObjectName("pushButton_config_toMain")
+        pushButton_config_toMain.setText(_translate("B3GUI", "Return"))
 
 
-        #def start point?
-                # may also need to have a "cleanse page" function just prior to this
-        self.frame_config = QtWidgets.QFrame(self.page_config)
-        self.frame_config.setGeometry(QtCore.QRect(40, 15, 506, 453))
-        self.frame_config.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_config.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.frame_config.setObjectName("frame_config")
-        self.gridLayoutWidget_2 = QtWidgets.QWidget(self.frame_config)
-        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(2, 2, 501, 449))
-        self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
-        self.gridLayout_config = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
-        self.gridLayout_config.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout_config.setObjectName("gridLayout_config")
+        frame_config = QtWidgets.QFrame(self.page_config)
+        frame_config.setGeometry(QtCore.QRect(40, 15, 506, 453))
+        frame_config.setStyleSheet("#MainFrame{border: 1px solid red;}")
+        frame_config.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        frame_config.setFrameShadow(QtWidgets.QFrame.Plain)
+        frame_config.setObjectName("frame_config")
+        self.gridLayoutWidget_config = QtWidgets.QWidget(frame_config)
+        self.gridLayoutWidget_config.setGeometry(QtCore.QRect(2, 2, 501, 449))
+        self.gridLayoutWidget_config.setObjectName("gridLayoutWidget_config")
 
-        ##headers
-        self.label_config_pumpHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_config_pumpHead.sizePolicy().hasHeightForWidth())
-        self.label_config_pumpHead.setSizePolicy(sizePolicy)
-        self.label_config_pumpHead.setMinimumSize(QtCore.QSize(40, 0))
-        self.label_config_pumpHead.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_config_pumpHead.setObjectName("label_config_pumpHead")
-        self.gridLayout_config.addWidget(self.label_config_pumpHead, 0, 0, 1, 1, QtCore.Qt.AlignRight)
-
-        self.label_config_ingNameHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_config_ingNameHead.sizePolicy().hasHeightForWidth())
-        self.label_config_ingNameHead.setSizePolicy(sizePolicy)
-        self.label_config_ingNameHead.setMinimumSize(QtCore.QSize(0, 70))
-        self.label_config_ingNameHead.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_config_ingNameHead.setObjectName("label_config_ingNameHead")
-        self.label_config_ingNameHead.setText(_translate("B3GUI", "Ingredient"))
-        self.gridLayout_config.addWidget(self.label_config_ingNameHead, 0, 2, 1, 1)
-
-        self.label_config_ingAmountHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_config_ingAmountHead.sizePolicy().hasHeightForWidth())
-        self.label_config_ingAmountHead.setSizePolicy(sizePolicy)
-        self.label_config_ingAmountHead.setMinimumSize(QtCore.QSize(0, 70))
-        self.label_config_ingAmountHead.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_config_ingAmountHead.setObjectName("label_config_ingAmountHead")
-        self.label_config_ingAmountHead.setText(_translate("B3GUI", "Amount\nRemaining"))
-        self.gridLayout_config.addWidget(self.label_config_ingAmountHead, 0, 4, 1, 1)
+        self.configGenerate()
         
-        self.label_config_ingUnitHead = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_config_ingUnitHead.sizePolicy().hasHeightForWidth())
-        self.label_config_ingUnitHead.setSizePolicy(sizePolicy)
-        self.label_config_ingUnitHead.setMinimumSize(QtCore.QSize(25, 70))
-        self.label_config_ingUnitHead.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        self.label_config_ingUnitHead.setObjectName("label_config_ingUnitHead")
-        self.label_config_ingUnitHead.setText(_translate("B3GUI", "Unit"))
-        self.gridLayout_config.addWidget(self.label_config_ingUnitHead, 0, 5, 1, 1)
-
-        ##pumpid and line
-
-        configRaw = fetchSQL(cursor, 'config', 'pump_id', '>', 0)
-
-        for i in range(0, len(configRaw)+1):
-            
-            lineEdit_config_pumpid = QtWidgets.QLineEdit()
-            lineEdit_config_pumpid.setMaximumSize(QtCore.QSize(35, 16777215))
-            lineEdit_config_pumpid.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-            lineEdit_config_pumpid.setObjectName("lineEdit_config_pumpid")
-            
-            line_configpump = QtWidgets.QFrame()
-            line_configpump.setFrameShape(QtWidgets.QFrame.VLine)
-            line_configpump.setFrameShadow(QtWidgets.QFrame.Sunken)
-            line_configpump.setObjectName("line_configpump") 
-            
-            lineEdit_config_ingName = QtWidgets.QLineEdit()
-            lineEdit_config_ingName.setAutoFillBackground(False)
-            lineEdit_config_ingName.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-            lineEdit_config_ingName.setObjectName("lineEdit_config_ingName")
-
-            line_configing = QtWidgets.QFrame()
-            line_configing.setFrameShape(QtWidgets.QFrame.VLine)
-            line_configing.setFrameShadow(QtWidgets.QFrame.Sunken)
-            line_configing.setObjectName("line_configing")
-            
-            lineEdit_config_ingAmount = QtWidgets.QLineEdit()
-            lineEdit_config_ingAmount.setMaximumSize(QtCore.QSize(90, 16777215))
-            lineEdit_config_ingAmount.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-            lineEdit_config_ingAmount.setObjectName("lineEdit_config_ingAmount")
-            
-            label_config_unit = QtWidgets.QLabel()
-            label_config_unit.setObjectName("label_config_unit")
-
-            self.gridLayout_config.addWidget(lineEdit_config_pumpid, (i+1), 0, 1, 1, QtCore.Qt.AlignRight)
-            self.gridLayout_config.addWidget(line_configpump, (i+1), 1, 1, 1)
-            self.gridLayout_config.addWidget(lineEdit_config_ingName, (i+1), 2, 1, 1)
-            self.gridLayout_config.addWidget(line_configing, (i+1), 3, 1, 1, QtCore.Qt.AlignHCenter)
-            self.gridLayout_config.addWidget(lineEdit_config_ingAmount, (i+1), 4, 1, 1)
-            self.gridLayout_config.addWidget(label_config_unit, (i+1), 5, 1, 1)
-
-            if i != len(configRaw):
-                lineEdit_config_pumpid.setText(_translate("B3GUI", str(configRaw[i][0])))
-                lineEdit_config_ingName.setText(_translate("B3GUI", str(configRaw[i][2])))
-                lineEdit_config_ingAmount.setText(_translate("B3GUI", str(configRaw[i][3])))
-                label_config_unit.setText(_translate("B3GUI", "mL"))
-                lineEdit_config_pumpid.setReadOnly(True)
-                lineEdit_config_ingName.setReadOnly(True)
-                lineEdit_config_ingAmount.setReadOnly(True)
-            else:
-                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-                self.gridLayout_config.addItem(spacerItem, i+2, 2, 1, 1)
-                self.buttonBox_config = QtWidgets.QDialogButtonBox(self.gridLayoutWidget_2)
-                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-                sizePolicy.setHorizontalStretch(0)
-                sizePolicy.setVerticalStretch(0)
-                sizePolicy.setHeightForWidth(self.buttonBox_config.sizePolicy().hasHeightForWidth())
-                self.buttonBox_config.setSizePolicy(sizePolicy)
-                palette = QtGui.QPalette()
-                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-                brush.setStyle(QtCore.Qt.SolidPattern)
-                palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-                brush.setStyle(QtCore.Qt.SolidPattern)
-                palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
-                brush.setStyle(QtCore.Qt.SolidPattern)
-                palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-                self.buttonBox_config.setPalette(palette)
-                self.buttonBox_config.setLayoutDirection(QtCore.Qt.RightToLeft)
-                self.buttonBox_config.setOrientation(QtCore.Qt.Vertical)
-                self.buttonBox_config.setStandardButtons(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Reset)
-                self.buttonBox_config.setCenterButtons(False)
-                self.buttonBox_config.setObjectName("buttonBox_config")
-                self.buttonBox_config.accepted.connect(self.configAdd)
-                self.buttonBox_config.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self.configReset)
-                self.gridLayout_config.addWidget(self.buttonBox_config, i+3, 4, 1, 1)
-
-
-
-        
-        '''
-        self.lineEdit_config_pumpid_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_pumpid_2.setMaximumSize(QtCore.QSize(35, 16777215))
-        self.lineEdit_config_pumpid_2.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_pumpid_2.setObjectName("lineEdit_config_pumpid_2")
-        self.lineEdit_config_pumpid_2.setText(_translate("B3GUI", "2"))
-        self.lineEdit_config_pumpid_2.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_pumpid_2, 2, 0, 1, 1, QtCore.Qt.AlignRight)
-        self.lineEdit_config_pumpid_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_pumpid_3.setMaximumSize(QtCore.QSize(35, 16777215))
-        self.lineEdit_config_pumpid_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_pumpid_3.setObjectName("lineEdit_config_pumpid_3")
-        self.lineEdit_config_pumpid_3.setText(_translate("B3GUI", "3"))
-        self.lineEdit_config_pumpid_3.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_pumpid_3, 3, 0, 1, 1, QtCore.Qt.AlignRight)
-        
-        self.line_configpump_2 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configpump_2.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configpump_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configpump_2.setObjectName("line_configpump_2")
-        self.gridLayout_config.addWidget(self.line_configpump_2, 2, 1, 1, 1)
-        self.line_configpump_3 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configpump_3.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configpump_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configpump_3.setObjectName("line_configpump_3")
-        self.gridLayout_config.addWidget(self.line_configpump_3, 3, 1, 1, 1)
-
-        #ing and line
-        self.lineEdit_config_ingName_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingName_2.setAutoFillBackground(False)
-        self.lineEdit_config_ingName_2.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingName_2.setText("Test Liquor B")
-        self.lineEdit_config_ingName_2.setObjectName("lineEdit_config_ingName_2")
-        self.lineEdit_config_ingName_2.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingName_2, 2, 2, 1, 1)
-        self.lineEdit_config_ingName_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingName_3.setAutoFillBackground(False)
-        self.lineEdit_config_ingName_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingName_3.setText("Test Ingredient A")
-        self.lineEdit_config_ingName_3.setObjectName("lineEdit_config_ingName_3")
-        self.lineEdit_config_ingName_3.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingName_3, 3, 2, 1, 1)               
-        
-        
-        self.line_configing_2 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configing_2.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configing_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configing_2.setObjectName("line_configing_2")
-        self.gridLayout_config.addWidget(self.line_configing_2, 2, 3, 1, 1)
-        self.line_configing_3 = QtWidgets.QFrame(self.gridLayoutWidget_2)
-        self.line_configing_3.setFrameShape(QtWidgets.QFrame.VLine)
-        self.line_configing_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_configing_3.setObjectName("line_configing_3")
-        self.gridLayout_config.addWidget(self.line_configing_3, 3, 3, 1, 1)
-
-        #amount + unit
-        self.lineEdit_config_ingAmount_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingAmount_2.setMaximumSize(QtCore.QSize(90, 16777215))
-        self.lineEdit_config_ingAmount_2.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingAmount_2.setObjectName("lineEdit_config_ingAmount_2")
-        self.lineEdit_config_ingAmount_2.setText(_translate("B3GUI", "300"))
-        self.lineEdit_config_ingAmount_2.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingAmount_2, 2, 4, 1, 1)
-        self.lineEdit_config_ingAmount_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_2)
-        self.lineEdit_config_ingAmount_3.setMaximumSize(QtCore.QSize(90, 16777215))
-        self.lineEdit_config_ingAmount_3.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
-        self.lineEdit_config_ingAmount_3.setObjectName("lineEdit_config_ingAmount_3")
-        self.lineEdit_config_ingAmount_3.setText(_translate("B3GUI", "300"))
-        self.lineEdit_config_ingAmount_3.setReadOnly(True)
-        self.gridLayout_config.addWidget(self.lineEdit_config_ingAmount_3, 3, 4, 1, 1)
-
-        self.label_config_unit_2 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_config_unit_2.setObjectName("label_config_unit_2")
-        self.label_config_unit_2.setText(_translate("B3GUI", "mL"))
-        self.gridLayout_config.addWidget(self.label_config_unit_2, 2, 5, 1, 1)
-        
-        self.label_config_unit_3 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_config_unit_3.setObjectName("label_config_unit_3")
-        self.label_config_unit_3.setText(_translate("B3GUI", "mL"))
-        self.gridLayout_config.addWidget(self.label_config_unit_3, 3, 5, 1, 1)
-      '''  
-        #button box
-        
-        
+        #right panel
         self.widget_config_rightInfo = QtWidgets.QListWidget(self.page_config)
         self.widget_config_rightInfo.setGeometry(QtCore.QRect(560, 0, 81, 482))
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(136, 138, 133))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(85, 87, 83))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        self.widget_config_rightInfo.setPalette(palette)
+        self.widget_config_rightInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
-        font.setFamily("MathJax_Caligraphic")
+        font.setFamily("STLiti")
         self.widget_config_rightInfo.setFont(font)
         self.widget_config_rightInfo.setObjectName("widget_config_rightInfo")
         self.widget_config_rightInfo.raise_()
-        self.frame_config.raise_()
-        self.pushButton_config_toMain.raise_()
+        frame_config.raise_()
+        pushButton_config_toMain.raise_()
         
-        self.pushButton_config_toMain.clicked.connect(self.toPrimary)
+        pushButton_config_toMain.clicked.connect(self.toPrimary)
         
         self.stackedWidget.addWidget(self.page_config)
 
@@ -1255,7 +857,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedWidget.setCurrentIndex(0)
         #QtCore.QMetaObject.connectSlotsByName(self)
 
-    def generateMenu(self):
+    def batteryDecay(self):
+        self.progressBar_batteryCharge.setValue(self.progressBar_batteryCharge.value()-1)
+
+    def menuGenerate(self):
+        ###potential issues with memory due to most of these not being constructed with parents. unsure- large scale testing/research
         menuRaw = fetchSQL(cursor, 'menu', 'id_start', '>', 0)
         #print(menuRaw)
         _translate = QtCore.QCoreApplication.translate
@@ -1269,7 +875,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             availableFlag = 1
             for j in range(0,i[2]):
                 ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
-                print(ing)
+                #print(ing)
                 test = fetchSQL(cursor, 'config', 'ingredient_name', '=', ing[0][3])
                 if test == []:
                     availableFlag = 0
@@ -1297,8 +903,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                     gridLayout_menu.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
                     gridLayout_menu.setContentsMargins(0, 0, 0, 0)
                     gridLayout_menu.setObjectName("gridLayout_menu " + str(int(menuCount/4) + 1))
-                    #spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-                    #gridLayout_menu.addItem(spacerItem, 2, 1, 1, 1)
 
                 menuItem = None
                 menuItem = QtWidgets.QVBoxLayout()
@@ -1310,49 +914,22 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 sizePolicy.setHeightForWidth(pushButton.sizePolicy().hasHeightForWidth())
                 pushButton.setSizePolicy(sizePolicy)
                 pushButton.setMinimumSize(QtCore.QSize(0, 120))
-                #pushButton.setFlat(True)
                 pushButton.setPalette(self.paletteButton)
                 pushButton.setObjectName(menuName + " pushButton")
-                #print(menuName)
+                font = QtGui.QFont()
+                font.setFamily("STLiti")
+                font.setPointSize(15)
+                pushButton.setFont(font)
                 pushButton.setText(_translate("B3GUI", menuName))
                 pushButton.clicked.connect(self.sendOrder)
-                menuItem.addWidget(pushButton)              
+                menuItem.addWidget(pushButton)
+                
                 line_menuRecipe = QtWidgets.QFrame()
                 line_menuRecipe.setFrameShape(QtWidgets.QFrame.HLine)
                 line_menuRecipe.setFrameShadow(QtWidgets.QFrame.Sunken)
+                line_menuRecipe.setPalette(self.paletteLine)
                 line_menuRecipe.setObjectName(menuName + " line_menuRecipe")
                 menuItem.addWidget(line_menuRecipe)
-
-                '''
-                ingItemWidget = QtWidgets.QWidget()
-                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-                sizePolicy.setHorizontalStretch(0)
-                sizePolicy.setVerticalStretch(0)
-                sizePolicy.setHeightForWidth(ingItemWidget.sizePolicy().hasHeightForWidth())
-                ingItemWidget.setSizePolicy(sizePolicy)
-                ingItemWidget.setMinimumSize(QtCore.QSize(0, 70))
-                ingItemWidget.setObjectName(menuName + " Ingredient List Widget")
-                
-                ingItem = QtWidgets.QVBoxLayout(ingItemWidget)
-                ingItem.setObjectName(menuName + " Ingredient List")
-
-                for j in range(0,i[2]):
-                    ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
-                    ingName = str(ing[0][3])
-                    
-                    label_recipeIng = QtWidgets.QLabel()
-                    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-                    sizePolicy.setHorizontalStretch(0)
-                    sizePolicy.setVerticalStretch(0)
-                    sizePolicy.setHeightForWidth(label_recipeIng.sizePolicy().hasHeightForWidth())
-                    label_recipeIng.setSizePolicy(sizePolicy)
-                    label_recipeIng.setMinimumSize(QtCore.QSize(0, 13))
-                    label_recipeIng.setObjectName("label_recipeIng" + str(int(j) + 1))
-                    label_recipeIng.setText(_translate("B3GUI", ingName))
-                    ingItem.addWidget(label_recipeIng)
-
-                #ingItemWidget.addLayout(ingItem)
-                menuItem.addWidget(ingItemWidget)'''
 
                 label_recipeIng = QtWidgets.QLabel()
                 sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -1383,9 +960,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 if (menuCount%2 == 1):
                     spacerItem = QtWidgets.QSpacerItem(13, 32, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
                     gridLayout_menu.addItem(spacerItem, (int(((menuCount%4)-1)/2)), 1, 1, 1)
+                    #tiny horizontal spacer for column seperation
 
-                if (menuCount%4 == 3):
-                    gridLayout_menu.itemAtPosition(0, 0).invalidate()
+                #if (menuCount%4 == 3):
+                    #gridLayout_menu.itemAtPosition(0, 0).invalidate()
+                    #i have no idea what this is??
     
                 menuCount += 1
         if (menuCount%4 == 1 or menuCount%4 == 2):
@@ -1400,6 +979,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             print("   ERROR: you idiot you have nothing configured")
         stackedWidget.setCurrentIndex(0)
         stackedWidget.menuCount = menuCount
+        
         return stackedWidget
     ##stackedWidget.count() returns for loop viable thing for making dynamic menu page change buttons
     
@@ -1415,7 +995,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             self.pushButton_menuLeft.show()
         self.stackedMenuWidget.setCurrentIndex((self.stackedMenuWidget.currentIndex() + 1))
         if((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
-            self.pushButton_menuRight.close()
+            self.pushButton_menuRight.deleteLater()
 
 
     def menuLeft(self):
@@ -1430,14 +1010,14 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedMenuWidget.setCurrentIndex((self.stackedMenuWidget.currentIndex() - 1))
 
         if(self.stackedMenuWidget.currentIndex() == 0):
-            self.pushButton_menuLeft.close()
+            self.pushButton_menuLeft.deleteLater()
             
     def sendOrder(self):
         if cupPresent:
             _translate = QtCore.QCoreApplication.translate
             sender = self.sender()
             orderName = sender.text()
-            self.label_curOrder_Name.setText(_translate("B3GUI", str(orderName)))
+            self.label_curOrder_Name.setText(_translate("B3GUI", ("  " + str(orderName))))
             #print(orderName)
             orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
             #print(orderRaw)
@@ -1445,43 +1025,57 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             ingName = ""
             ingAmt = ""
                     
-            '''for j in range(0,i[2]):
-                        ing = fetchSQL(cursor, 'recipes', 'id', '=', (int(i[1]) + j))
-                        ingName = str(ing[0][3])
-
-                        temp = (ingString + "<p>" + ingName + "</p>")
-                        ingString = temp'''
-
-                    
             for i in orderRaw:
+                pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
+                updateInfo = ("inventory = " + str(int(pumpConfig[0][3]) - int(i[4])))
+                updateSQL(cursor, "config", updateInfo, "ingredient_name", "=", str(i[3]))
+                
                 temp = (ingName + "<p>" + str(i[3]) + "</p>")
                 ingName = temp
                 temp = (ingAmt + "<p>" + str(i[4]) + " mL" + "</p>")
                 ingAmt = temp
 
-                pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
                 if order == None:
-                    temp = (pumpConfig[0][0], i[4])
+                    temp = ("M" + str(pumpConfig[0][0]), i[4])
                     order = temp
                 else:
-                    temp = order, (pumpConfig[0][0], i[4])
+                    temp = order, ("M" + str(pumpConfig[0][0]), i[4])
                     order = temp
+            if len(orderRaw) == 1:
+                temp = order
+                convOrder = (temp,)
+                order = (str(convOrder).rstrip(",)") + "))")
+                
             self.label_curOrder_IngName.setText(_translate("B3GUI", ingName))
             self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
             global bartOrder
             bartOrder = order
-            #print(order)
-            pubMQTT(client, ORDER, order)
+            print(order)
+            print(bartOrder)
+            self.startButler()
+            self.pubOrder() #this will later be moved to an mqtt thing)
+            self.configRefresh()
+            print(self.page_menuWindow.isAncestorOf(self.stackedMenuWidget))
+            
             self.toPrimary()
         else:
             print("Please place a cup in Alfred the Butler's tray.")
 
     def quickOrder(self):
         if bartOrder != "":
-            pubMQTT(client, ORDER, bartOrder)
+            self.startButler()
+            pumpConfig = fetchSQL(cursor, 'config', 'ingredient_name', '=', str(i[3]))
+            updateInfo = ("inventory = '" + str(int(pumpConfig[0][3]) - int(i[4])))
+            updateSQL(cursor, "config", updateInfo, "ingredient_name", "=", str(i[3]))
+
+            self.configRefresh()
+            self.configAddConfirm.destroy()
             self.toPrimary()
         else:
             print("There has not been a previous order yet!")
+
+    def pubOrder(self):
+        pubMQTT(client, ORDER, bartOrder)
 
     def customReset(self):
         for i in range(1, self.gridLayout_custom.rowCount() - 2):
@@ -1565,35 +1159,199 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             values = "\'" + recipeName + "\', \'" + ingName + "\', \'" + ingAmnt + "\'"
             if ingName != "" and ingAmnt != "" and recipeName != "":
                 numIng += 1
-                #insertSQL(cursor, "recipes", "recipe_name, ingredient_name, ingredient_amount_", values)
+                insertSQL(cursor, "recipes", "recipe_name, ingredient_name, ingredient_amount", values)
+            ##currently works under the assumption there are no correct inputs. return to allow
+            ##for user error if time permits
+            '''else:
+                print("ERROR: Recipe List Update: Invalid Entry.")'''
 
         if numIng != 0:
-            print(value[0][0] + 1)
             values = None
             values = "\'" + recipeName + "\', " + str((value[0][0] + 1)) + ", " + str(numIng)
-            print(values)
             insertSQL(cursor, "menu", "name, id_start, num_ingredient", values)
-        self.customAddConfirm.destroy
+            self.menuRefresh()
+        self.customReset()
+        time.sleep(.8)
+        self.toMenu()
+        self.customAddConfirm.destroy()
 
-    def configInit(self):
+    def configGenerate(self):
+        _translate = QtCore.QCoreApplication.translate
+
+        #def start
+        gridLayout_defConfig = QtWidgets.QGridLayout()
+        gridLayout_defConfig.setContentsMargins(0, 0, 0, 0)
+        gridLayout_defConfig.setObjectName("gridLayout_defConfig")
+
+        ##headers
+        label_config_pumpHead = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_config_pumpHead.sizePolicy().hasHeightForWidth())
+        label_config_pumpHead.setSizePolicy(sizePolicy)
+        label_config_pumpHead.setMinimumSize(QtCore.QSize(40, 0))
+        label_config_pumpHead.setAlignment(QtCore.Qt.AlignCenter)
+        label_config_pumpHead.setObjectName("label_config_pumpHead")
+        label_config_pumpHead.setText(_translate("B3GUI", "Pump ID"))
+        gridLayout_defConfig.addWidget(label_config_pumpHead, 0, 0, 1, 1, QtCore.Qt.AlignRight)
+
+        label_config_ingNameHead = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_config_ingNameHead.sizePolicy().hasHeightForWidth())
+        label_config_ingNameHead.setSizePolicy(sizePolicy)
+        label_config_ingNameHead.setMinimumSize(QtCore.QSize(0, 70))
+        label_config_ingNameHead.setAlignment(QtCore.Qt.AlignCenter)
+        label_config_ingNameHead.setObjectName("label_config_ingNameHead")
+        label_config_ingNameHead.setText(_translate("B3GUI", "Ingredient"))
+        gridLayout_defConfig.addWidget(label_config_ingNameHead, 0, 2, 1, 1)
+
+        label_config_ingAmountHead = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_config_ingAmountHead.sizePolicy().hasHeightForWidth())
+        label_config_ingAmountHead.setSizePolicy(sizePolicy)
+        label_config_ingAmountHead.setMinimumSize(QtCore.QSize(0, 70))
+        label_config_ingAmountHead.setAlignment(QtCore.Qt.AlignCenter)
+        label_config_ingAmountHead.setObjectName("label_config_ingAmountHead")
+        label_config_ingAmountHead.setText(_translate("B3GUI", "Amount\nRemaining"))
+        gridLayout_defConfig.addWidget(label_config_ingAmountHead, 0, 4, 1, 1)
         
+        label_config_ingUnitHead = QtWidgets.QLabel()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(label_config_ingUnitHead.sizePolicy().hasHeightForWidth())
+        label_config_ingUnitHead.setSizePolicy(sizePolicy)
+        label_config_ingUnitHead.setMinimumSize(QtCore.QSize(25, 70))
+        label_config_ingUnitHead.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        label_config_ingUnitHead.setObjectName("label_config_ingUnitHead")
+        label_config_ingUnitHead.setText(_translate("B3GUI", "Unit"))
+        gridLayout_defConfig.addWidget(label_config_ingUnitHead, 0, 5, 1, 1)
 
-        return layout
+        ##pumpid and line
 
-    def configReset(self):
-        for i in range(1, self.gridLayout_config.rowCount() - 2):
-            self.gridLayout_config.itemAtPosition(i, 0).widget().clear()
-            self.gridLayout_config.itemAtPosition(i, 1).widget().clear()
-            self.gridLayout_config.itemAtPosition(i, 3).widget().clear()
-        '''for i in range(1, self.gridLayout_config.rowCount() - 2):
-            pumpid = str(self.gridLayout_config.itemAtPosition(i, 0).widget().text())
-            ingName = str(self.gridLayout_config.itemAtPosition(i, 1).widget().text())
-            ingAmnt = str(self.gridLayout_config.itemAtPosition(i, 3).widget().text())
-            print(ingName)
-            print(ingAmnt)
-            if i == 3:
-            self.gridLayout_config.itemAtPosition(i, 1).widget().clear()
-            self.gridLayout_config.itemAtPosition(i, 3).widget().clear()'''
+        configRaw = fetchSQL(cursor, 'config', 'pump_id', '>', 0)
+
+        for i in range(0, 3):
+            
+            lineEdit_config_pumpid = QtWidgets.QLineEdit()
+            lineEdit_config_pumpid.setMaximumSize(QtCore.QSize(35, 16777215))
+            lineEdit_config_pumpid.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+            lineEdit_config_pumpid.setObjectName("lineEdit_config_pumpid")
+            
+            line_configpump = QtWidgets.QFrame()
+            line_configpump.setFrameShape(QtWidgets.QFrame.VLine)
+            line_configpump.setFrameShadow(QtWidgets.QFrame.Sunken)
+            line_configpump.setPalette(self.paletteLine)
+            line_configpump.setObjectName("line_configpump") 
+            
+            lineEdit_config_ingName = QtWidgets.QLineEdit()
+            lineEdit_config_ingName.setAutoFillBackground(False)
+            lineEdit_config_ingName.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+            lineEdit_config_ingName.setObjectName("lineEdit_config_ingName")
+
+            line_configing = QtWidgets.QFrame()
+            line_configing.setFrameShape(QtWidgets.QFrame.VLine)
+            line_configing.setFrameShadow(QtWidgets.QFrame.Sunken)
+            line_configing.setPalette(self.paletteLine)
+            line_configing.setObjectName("line_configing")
+            
+            lineEdit_config_ingAmount = QtWidgets.QLineEdit()
+            lineEdit_config_ingAmount.setMaximumSize(QtCore.QSize(90, 16777215))
+            lineEdit_config_ingAmount.setStyleSheet("background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:0, stop:0 rgba(136, 138, 133, 255), stop:1 rgba(255, 255, 255, 255));")
+            lineEdit_config_ingAmount.setObjectName("lineEdit_config_ingAmount")
+            
+            label_config_unit = QtWidgets.QLabel()
+            label_config_unit.setObjectName("label_config_unit")
+            label_config_unit.setText(_translate("B3GUI", "mL"))
+
+            gridLayout_defConfig.addWidget(lineEdit_config_pumpid, (i+1), 0, 1, 1, QtCore.Qt.AlignRight)
+            gridLayout_defConfig.addWidget(line_configpump, (i+1), 1, 1, 1)
+            gridLayout_defConfig.addWidget(lineEdit_config_ingName, (i+1), 2, 1, 1)
+            gridLayout_defConfig.addWidget(line_configing, (i+1), 3, 1, 1, QtCore.Qt.AlignHCenter)
+            gridLayout_defConfig.addWidget(lineEdit_config_ingAmount, (i+1), 4, 1, 1)
+            gridLayout_defConfig.addWidget(label_config_unit, (i+1), 5, 1, 1)
+
+            lineEdit_config_pumpid.setText(_translate("B3GUI", str(configRaw[i][0])))
+            lineEdit_config_pumpid.setReadOnly(True)
+            
+            if configRaw[i][2] != "" and configRaw[i][3] != "":
+                lineEdit_config_ingName.setText(_translate("B3GUI", str(configRaw[i][2])))
+                lineEdit_config_ingAmount.setText(_translate("B3GUI", str(configRaw[i][3])))
+                
+                lineEdit_config_ingName.setReadOnly(True)
+                lineEdit_config_ingAmount.setReadOnly(True)
+            if i == 2:
+                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                gridLayout_defConfig.addItem(spacerItem, i+2, 2, 1, 1)
+                buttonBox_config = QtWidgets.QDialogButtonBox()
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy.setHorizontalStretch(0)
+                sizePolicy.setVerticalStretch(0)
+                sizePolicy.setHeightForWidth(buttonBox_config.sizePolicy().hasHeightForWidth())
+                buttonBox_config.setSizePolicy(sizePolicy)
+                palette = QtGui.QPalette()
+                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
+                brush.setStyle(QtCore.Qt.SolidPattern)
+                palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
+                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
+                brush.setStyle(QtCore.Qt.SolidPattern)
+                palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
+                brush = QtGui.QBrush(QtGui.QColor(136, 136, 136))
+                brush.setStyle(QtCore.Qt.SolidPattern)
+                palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
+                buttonBox_config.setPalette(palette)
+                buttonBox_config.setLayoutDirection(QtCore.Qt.RightToLeft)
+                buttonBox_config.setOrientation(QtCore.Qt.Vertical)
+                buttonBox_config.setStandardButtons(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Reset)
+                buttonBox_config.setCenterButtons(False)
+                buttonBox_config.setObjectName("buttonBox_config")
+                buttonBox_config.accepted.connect(self.configAdd)
+                buttonBox_config.button(QtWidgets.QDialogButtonBox.Reset).clicked.connect(self.configReset)
+                gridLayout_defConfig.addWidget(buttonBox_config, i+3, 4, 1, 1)
+
+        self.gridLayoutWidget_config.setLayout(gridLayout_defConfig)
+
+    def configDeleteRow(self):
+        #deletes designated row in config page
+        #same as reset basically but for a specifc row
+        #completely optional QoL task. ignore this if more pressing issues are at hand
+        self.configRefresh()
+
+    def configRefresh(self):
+        _translate = QtCore.QCoreApplication.translate
+        layout = self.gridLayoutWidget_config.layout()
+        layout_progress = self.formLayoutWidget_progress.layout()
+        configRaw = fetchSQL(cursor, 'config', 'pump_id', '>', 0)
+        for i in range(0, 3):
+            if configRaw[i][2] != "" and configRaw[i][3] != "":
+                layout.itemAtPosition((i+1), 2).widget().setText(_translate("B3GUI", str(configRaw[i][2])))
+                layout.itemAtPosition((i+1), 4).widget().setText(_translate("B3GUI", str(configRaw[i][3])))
+                layout.itemAtPosition((i+1), 2).widget().setReadOnly(True)
+                layout.itemAtPosition((i+1), 4).widget().setReadOnly(True)
+                
+                layout_progress.itemAt(2*i).widget().setText(_translate("B3GUI", str(configRaw[i][2])))
+                layout_progress.itemAt((2*i) + 1).widget().setMaximum(configRaw[i][4])
+                layout_progress.itemAt((2*i) + 1).widget().setValue(configRaw[i][3])
+                layout_progress.itemAt((2*i) + 1).widget().show()
+                
+            else:
+                layout.itemAtPosition((i+1), 2).widget().setText(_translate("B3GUI", ""))
+                layout.itemAtPosition((i+1), 4).widget().setText(_translate("B3GUI", "")) 
+                layout.itemAtPosition((i+1), 2).widget().setReadOnly(False)
+                layout.itemAtPosition((i+1), 4).widget().setReadOnly(False)
+                
+                layout_progress.itemAt(2*i).widget().setText(_translate("B3GUI", ("Pump " + str(i+1))))
+                layout_progress.itemAt((2*i) + 1).widget().setMaximum(100)
+                layout_progress.itemAt((2*i) + 1).widget().setValue(0)
+                layout_progress.itemAt((2*i) + 1).widget().hide()
+                
+        self.menuRefresh()
+        
             
     def configAdd(self):
         self.configAddConfirm.setObjectName("ConfigWindow")
@@ -1620,16 +1378,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         label_configAddConfirm.setObjectName("label_configAddConfirm")
         self.layout_configAddConfirm.addWidget(label_configAddConfirm)
 
-        lineEdit_config_recipeName = QtWidgets.QLineEdit()
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(lineEdit_config_recipeName.sizePolicy().hasHeightForWidth())
-        lineEdit_config_recipeName.setSizePolicy(sizePolicy)
-        lineEdit_config_recipeName.setMinimumSize(QtCore.QSize(220, 0))
-        lineEdit_config_recipeName.setObjectName("lineEdit_config_recipeName")
-        self.layout_configAddConfirm.addWidget(lineEdit_config_recipeName, 0, QtCore.Qt.AlignHCenter)
-
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.layout_configAddConfirm.addItem(spacerItem)
 
@@ -1648,7 +1396,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
         _translate = QtCore.QCoreApplication.translate
         self.configAddConfirm.setWindowTitle(_translate("ConfigAddConfirmWindow", "ConfigDialog"))
-        label_configAddConfirm.setText(_translate("ConfigAddConfirmWindow", "Are you sure you want to make these changes?"))
+        label_configAddConfirm.setText(_translate("ConfigAddConfirmWindow", "Are you sure you add this to the configuration?"))
         dialog_configAddConfirm.accepted.connect(self.configConfirm)
         dialog_configAddConfirm.rejected.connect(self.configAddConfirm.destroy)
         self.layout_configAddConfirm.addWidget(dialog_configAddConfirm)
@@ -1660,19 +1408,29 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.configAddConfirm.show()        
 
     def configConfirm(self):
-        for i in range(1, self.gridLayout_config.rowCount() - 2):
-            pumpid = str(self.gridLayout_config.itemAtPosition(i, 0).widget().text())
-            ingName = str(self.gridLayout_config.itemAtPosition(i, 1).widget().text())
-            ingAmnt = str(self.gridLayout_config.itemAtPosition(i, 3).widget().text())
-            values = None
-            values = "\'" + pumpid + "\', \'" + ingName + "\', \'" + ingAmnt + "\'"
-            if ingName != "" and ingAmnt != "" and pump_id != "":
-                insertSQL(cursor, "config", "pump_id, ingredient_name, inventory", values)
-    
-        self.configAddConfirm.destroy
+        layout = self.gridLayoutWidget_config.layout()
+
+        for i in range(1,4):
+            if (ingName != "" and ingAmnt != "" and
+                not(layout.itemAtPosition(i, 2).widget().isReadOnly())):
+                ingName = str(layout.itemAtPosition(i, 2).widget().text())
+                ingAmnt = str(layout.itemAtPosition(i, 4).widget().text())
+                updateInfo = ("ingredient_name = '" + ingName + "', inventory = "
+                              + ingAmnt + ", start_inventory = " + ingAmnt)
+                updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
+
+        self.configRefresh()
+        self.configAddConfirm.destroy()
+
         
-    def test(self):
-        pubMQTT(client, STARTSIGNAL, "hi yianni")
+    def configReset(self):
+        for i in range(1,4):
+            updateInfo = "ingredient_name = '', inventory = '', start_inventory = ''"
+            updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
+        self.configRefresh()
+        
+    def startButler(self):
+        pubMQTT(client, STARTSIGNAL, "start")
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -1680,73 +1438,46 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.pushButton_config.setText(_translate("B3GUI", "Drink\n"
 "Configuration"))
         self.pushButton_toMenu.setText(_translate("B3GUI", "Menu"))
-        self.label_config_dynamicLater3.setText(_translate("B3GUI", "Ing. D"))
-        self.label_config_dynamicLater1.setText(_translate("B3GUI", "Ing. B"))
-        self.label_config_dynamicLater4.setText(_translate("B3GUI", "Bartender is \n" + bartConnected))
         self.label_curOrder_IngAmount.setText(_translate("B3GUI", " "))
         self.pushButton_curOrder.setText(_translate("B3GUI", "Quick Order"))
         self.pushButton_quit.setText(_translate("B3GUI", "Quit"))
-        self.label_config.setText(_translate("B3GUI", "Ing. A"))
         self.label_curOrder.setText(_translate("B3GUI", "Current Order: "))
         self.pushButton_dock.setText(_translate("B3GUI", "Dock"))
-        self.label_config_dynamicLater2.setText(_translate("B3GUI", "Ing. C"))
-        self.pushButton_advTools.setText(_translate("B3GUI", "Adv. \n"
-"Tools"))
+        #self.pushButton_advTools.setText(_translate("B3GUI", "Adv. \n"
+                                                    #"Tools"))
         self.label_batteryCharge.setText(_translate("B3GUI", "Battery Charge"))
+        
 
+    def menuRefresh(self):
+        if (self.stackedMenuWidget.count() ==1):
+            pass
+        elif (self.stackedMenuWidget.currentIndex() == 0):
+            self.pushButton_menuRight.deleteLater()
+        elif((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
+            self.pushButton_menuLeft.deleteLater()
+        else:
+            self.pushButton_menuRight.deleteLater()
+            self.pushButton_menuLeft.deleteLater()
         
-        '''self.pushButton_2.setText(_translate("B3GUI", "Test Drink B"))
-        self.label_recipeIng1_11.setText(_translate("B3GUI", "Test Liquor A"))
-        self.label_recipeIngDynamicLater_11.setText(_translate("B3GUI", "Test Liquor B"))
-        #self.label_recipeIngDynamicLater2_11.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton_4.setText(_translate("B3GUI", "Test Drink C"))
-        self.label_recipeIng1_10.setText(_translate("B3GUI", "Test Liquor A"))
-        self.label_recipeIngDynamicLater_10.setText(_translate("B3GUI", "Test Ingredient A"))
-        #self.label_recipeIngDynamicLater2_10.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton.setText(_translate("B3GUI", "Test Drink D"))
-        self.label_recipeIng1_12.setText(_translate("B3GUI", "Test Liquor B"))
-        self.label_recipeIngDynamicLater_12.setText(_translate("B3GUI", "Ingredient B"))
-        #self.label_recipeIngDynamicLater2_12.setText(_translate("B3GUI", "Ingredient 3"))
-        self.pushButton_3.setText(_translate("B3GUI", "Test Drink A"))
-        self.label_recipeIng1.setText(_translate("B3GUI", "Test Liquor A"))
-        #self.label_recipeIngDynamicLater.setText(_translate("B3GUI", "Ingredient 2"))
-        #self.label_recipeIngDynamicLater2.setText(_translate("B3GUI", "Ingredient 3"))'''
-        '''
-        self.label_recipeIngName_13.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_13.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_13.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_13.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_14.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_14.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_14.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_14.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_15.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_15.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_15.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_15.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_recipeIngName_2.setText(_translate("B3GUI", "NameofDrink"))
-        self.label_recipeIng1_2.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_recipeIngDynamicLater_2.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_recipeIngDynamicLater2_2.setText(_translate("B3GUI", "Ingredient 3"))
-        
-        self.pushButton_menuLeft.setText(_translate("B3GUI", "<-------"))
-        self.pushButton_menuRight.setText(_translate("B3GUI", "------->"))
-        self.label_51.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_52.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_53.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_54.setText(_translate("B3GUI", "Temp Custom Drank Layout"))
-        self.label_55.setText(_translate("B3GUI", "Ingredient 2"))
-        self.label_56.setText(_translate("B3GUI", "Ingredient 1"))
-        self.label_57.setText(_translate("B3GUI", "Ingredient 3"))
-        self.label_58.setText(_translate("B3GUI", "This is not currently finalized"))'''
-        self.pushButton_config_toMain.setText(_translate("B3GUI", "Return"))
-        '''self.label_config_ingNameHead.setText(_translate("B3GUI", "Ingredient Name"))
-        self.label_config_ingAmountHead.setText(_translate("B3GUI", "Amount"))
-        self.label_config_ingUnitHead.setText(_translate("B3GUI", "Unit"))
-        self.label_config_unit.setText(_translate("B3GUI", "mL"))
-        self.label_config_unit_2.setText(_translate("B3GUI", "mL"))
-        self.label_config_unit_3.setText(_translate("B3GUI", "mL"))'''
-        self.label_config_pumpHead.setText(_translate("B3GUI", "Pump ID"))
+        for i in range (0, self.stackedMenuWidget.count()):
+            self.stackedMenuWidget.widget(i).deleteLater()
+
+        self.stackedMenuWidget.deleteLater()
+
+        self.stackedMenuWidget = self.menuGenerate()
+        self.stackedMenuWidget.setGeometry(QtCore.QRect(94, 16, 451, 417))
+        self.stackedMenuWidget.setObjectName("stackedMenuWidget")
+        self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.stackedMenuWidget.show()
+
+        if self.stackedMenuWidget.count() != 1:
+            self.pushButton_menuRight = QtWidgets.QPushButton(self.page_menuWindow)
+            self.pushButton_menuRight.setGeometry(QtCore.QRect(375, 440, 76, 33))
+            self.pushButton_menuRight.setPalette(self.paletteButton)
+            self.pushButton_menuRight.setObjectName("pushButton_menuRight")
+            self.pushButton_menuRight.setText("------->")
+            self.pushButton_menuRight.clicked.connect(self.menuRight)
+            self.pushButton_menuRight.show()
 
     def toMenu(self):
         self.stackedWidget.setCurrentIndex(1)
@@ -1762,14 +1493,20 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedWidget.setCurrentIndex(0)
 
         
-    def cupGift(self): ##purely for test purposes in toggling cup present flag
+    def cupGift(self):
+        ##purely for test purposes in toggling cup present flag
+        ##this will eventually be removed
+        #ideally will replace with some setting toggle
         global cupPresent
         temp = not cupPresent
         print("~~MQTT~~ Received message \"" + "1" + "\" from topic \"" + "alfred/cupStatus" + "\".")
         cupPresent = temp
 
     def dock(self):
-        pubMQTT(client, DOCK, "hey this is the emergency dock signal")
+        self.configRefresh()
+        self.cupGift()
+        #self.startButler()
+        pubMQTT(client, DOCK, "dock")
         
     def exitPopup(self):
         self.exit.setObjectName("ExitWindow")
