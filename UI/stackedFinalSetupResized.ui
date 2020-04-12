@@ -278,18 +278,9 @@ Configuration</string>
         <colorrole role="Highlight">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>252</red>
-           <green>233</green>
-           <blue>79</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="HighlightedText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
+           <red>175</red>
+           <green>50</green>
+           <blue>25</blue>
           </color>
          </brush>
         </colorrole>
@@ -298,18 +289,9 @@ Configuration</string>
         <colorrole role="Highlight">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>252</red>
-           <green>233</green>
-           <blue>79</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="HighlightedText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
+           <red>175</red>
+           <green>50</green>
+           <blue>25</blue>
           </color>
          </brush>
         </colorrole>
@@ -318,18 +300,9 @@ Configuration</string>
         <colorrole role="Highlight">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>145</red>
-           <green>145</green>
-           <blue>145</blue>
-          </color>
-         </brush>
-        </colorrole>
-        <colorrole role="HighlightedText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
+           <red>51</red>
+           <green>153</green>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -466,6 +439,43 @@ Configuration</string>
        <width>189</width>
        <height>13</height>
       </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Light">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>175</red>
+           <green>50</green>
+           <blue>25</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Light">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>175</red>
+           <green>50</green>
+           <blue>25</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Light">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>175</red>
+           <green>50</green>
+           <blue>25</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
