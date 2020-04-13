@@ -29,7 +29,7 @@ ORDER = "app/order"
 DOCK = "app/emergencyDock"
 STARTSIGNAL = "app/start"
 BARTSTATUS = "bart/status"
-BARTSENSOR = "bart/alignment"
+BARTSENSOR = "bart/sr/alignment"
 BOTSTATUS = "bot/status"
 
 #### FLAGS  ####
