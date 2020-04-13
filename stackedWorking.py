@@ -15,6 +15,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 client = None 
 MQTT_SERVER = "localhost"
 MQTT_SERVERP = "192.168.1.73"
+MQTT_SERVERD = "192.168.1.78"
 MQTT_SERVERC = "Core"
 MQTT_PORT = 1883
 MQTT_USERNAME = ""
@@ -114,7 +115,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVERP
+    ip = MQTT_SERVERD
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -546,10 +547,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.progressBar_batteryCharge.setMaximum(100)
         self.progressBar_batteryCharge.setObjectName("progressBar_batteryCharge")
         
-        self.label_imageB3 = QtWidgets.QLabel(self.page)
-        self.label_imageB3.setGeometry(QtCore.QRect(575, 432, 56, 22))
-        self.label_imageB3.setText("")
-        self.label_imageB3.setObjectName("label_imageB3")
+        label_primary_imageB3 = QtWidgets.QLabel(self.page)
+        image = QtGui.QPixmap('B3LogoResize.png')
+        label_primary_imageB3.setGeometry(QtCore.QRect(567, 407, 66, 66))
+        label_primary_imageB3.setPixmap(image)
+        label_primary_imageB3.setObjectName("label_primary_imageB3")
         
         
         
@@ -569,7 +571,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         #self.pushButton_advTools.raise_()
         self.label_batteryCharge.raise_()
         self.line.raise_()
-        self.label_imageB3.raise_()
+        label_primary_imageB3.raise_()
         #progressBar_progress.raise_()
         self.pushButton_config.raise_()
 
@@ -638,6 +640,11 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         pushButton_pageToCustom.setFont(font)
         pushButton_pageToCustom.setObjectName("pushButton_pageToCustom")
         pushButton_pageToCustom.setText(_translate("B3GUI", "Custom\nOrder"))
+        
+        label_menu_imageB3 = QtWidgets.QLabel(self.page_menuWindow)
+        label_menu_imageB3.setGeometry(QtCore.QRect(567, 407, 66, 66))
+        label_menu_imageB3.setPixmap(image)
+        label_menu_imageB3.setObjectName("label_menu_imageB3")
         
         pushButton_pageToCustom.clicked.connect(self.toCustom)
         pushButton_pageToPrimary.clicked.connect(self.toPrimary)
@@ -821,12 +828,18 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         pushButton_custom_pageToPrimary.setFont(font)
         pushButton_custom_pageToPrimary.setObjectName("pushButton_custom_pageToPrimary")
         pushButton_custom_pageToPrimary.setText(_translate("B3GUI", "Home"))
+
+        label_custom_imageB3 = QtWidgets.QLabel(self.page_custom)        
+        label_custom_imageB3.setGeometry(QtCore.QRect(567, 407, 66, 66))
+        label_custom_imageB3.setPixmap(image)
+        label_custom_imageB3.setObjectName("label_custom_imageB3")
         
         self.widget_custom_leftInfo.raise_()
         self.frame_2.raise_()
         pushButton_custom_pageToMenu.raise_()
         pushButton_custom_pageToPrimary.raise_()
         self.widget_custom_rightInfo.raise_()
+        label_custom_imageB3.raise_()
 
         pushButton_custom_pageToMenu.clicked.connect(self.toMenu)
         pushButton_custom_pageToPrimary.clicked.connect(self.toPrimary)
@@ -862,13 +875,20 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         
         #right panel
         self.widget_config_rightInfo = QtWidgets.QListWidget(self.page_config)
-        self.widget_config_rightInfo.setGeometry(QtCore.QRect(560, 0, 81, 482))
+        self.widget_config_rightInfo.setGeometry(QtCore.QRect(560, -1, 81, 482))
         self.widget_config_rightInfo.setPalette(self.paletteWidget)
         font = QtGui.QFont()
         font.setFamily("STLiti")
         self.widget_config_rightInfo.setFont(font)
         self.widget_config_rightInfo.setObjectName("widget_config_rightInfo")
+
+        label_config_imageB3 = QtWidgets.QLabel(self.page_config)        
+        label_config_imageB3.setGeometry(QtCore.QRect(567, 407, 66, 66))
+        label_config_imageB3.setPixmap(image)
+        label_config_imageB3.setObjectName("label_config_imageB3")
+        
         self.widget_config_rightInfo.raise_()
+        label_config_imageB3.raise_()
         frame_config.raise_()
         pushButton_config_toMain.raise_()
         
