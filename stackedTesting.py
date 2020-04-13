@@ -313,7 +313,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.setupPrimary()
         #self.showFullScreen()
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        #self.configRefresh()
+        self.configRefresh()
         timer_battery = QtCore.QTimer(self)
         timer_battery.setInterval(72000)
         timer_battery.start()
