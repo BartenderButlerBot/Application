@@ -166,6 +166,8 @@ def updateSQL(self, table, updatedInfo, column, conditional, condition):
             conditionCheck = '\'' + str(condition) + '\''
         else:
             conditionCheck = str(condition)
+        print('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
+                   str(column) + str(conditional) + conditionCheck)
         cursor.execute('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
                        str(column) + str(conditional) + conditionCheck)
         sqlConnect.commit()        
@@ -178,6 +180,8 @@ def deleteSQL(self, table, column, conditional, condition):
             conditionCheck = '\'' + str(condition) + '\''
         else:
             conditionCheck = str(condition)
+            print(('DELETE FROM ' + str(table) + ' WHERE ' + 
+                       str(column) + str(condtional) + conditionCheck))
         cursor.execute('DELETE FROM ' + str(table) + ' WHERE ' + 
                        str(column) + str(condtional) + conditionCheck)
         sqlConnect.commit()
@@ -309,7 +313,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.setupPrimary()
         #self.showFullScreen()
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.configRefresh()
+        #self.configRefresh()
         timer_battery = QtCore.QTimer(self)
         timer_battery.setInterval(72000)
         timer_battery.start()
@@ -596,7 +600,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.stackedMenuWidget.setObjectName("stackedMenuWidget")
         self.stackedMenuWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
-        if self.stackedMenuWidget.count() != 1:
+        if self.stackedMenuWidget.count() > 1:
             self.pushButton_menuRight = QtWidgets.QPushButton(self.page_menuWindow)
             self.pushButton_menuRight.setGeometry(QtCore.QRect(375, 440, 76, 33))
             self.pushButton_menuRight.setPalette(self.paletteButton)
@@ -1024,7 +1028,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         if menuPage != None:
             stackedWidget.addWidget(menuPage)
         else:
-            print("   ERROR: you idiot you have nothing configured")
+            print("   ERROR: you have nothing configured")
         stackedWidget.setCurrentIndex(0)
         stackedWidget.menuCount = menuCount
         
@@ -1452,16 +1456,19 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def configConfirm(self):
         layout = self.gridLayoutWidget_config.layout()
-
+        print("in config confirm")
         for i in range(1,4):
+            print("in for loop " + i)
             if (ingName != "" and ingAmnt != "" and
                 not(layout.itemAtPosition(i, 2).widget().isReadOnly())):
+                print("past not")
                 ingName = str(layout.itemAtPosition(i, 2).widget().text())
                 ingAmnt = str(layout.itemAtPosition(i, 4).widget().text())
                 updateInfo = ("ingredient_name = '" + ingName + "', inventory = "
                               + ingAmnt + ", start_inventory = " + ingAmnt)
                 updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
 
+        print("past for loop")
         self.configRefresh()
         self.configAddConfirm.destroy()
 
