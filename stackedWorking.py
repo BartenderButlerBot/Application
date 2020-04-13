@@ -6,6 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+import textwrap
 import sys, time
 import paho.mqtt.client as mqtt
 import sqlite3
@@ -308,7 +309,6 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.setupPrimary()
         #self.showFullScreen()
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.configRefresh()
         timer_battery = QtCore.QTimer(self)
         timer_battery.setInterval(72000)
         timer_battery.start()
@@ -951,18 +951,22 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 menuItem = QtWidgets.QVBoxLayout()
                 menuItem.setObjectName(menuName + " Item")
                 pushButton= QtWidgets.QPushButton()
-                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
                 sizePolicy.setHorizontalStretch(0)
                 sizePolicy.setVerticalStretch(0)
                 sizePolicy.setHeightForWidth(pushButton.sizePolicy().hasHeightForWidth())
                 pushButton.setSizePolicy(sizePolicy)
-                pushButton.setMinimumSize(QtCore.QSize(0, 120))
+                pushButton.setMinimumSize(QtCore.QSize(213, 113))
+                pushButton.setMaximumSize(QtCore.QSize(213, 113))
                 pushButton.setPalette(self.paletteButton)
                 pushButton.setObjectName(menuName + " pushButton")
                 font = QtGui.QFont()
                 font.setFamily("STLiti")
                 font.setPointSize(15)
                 pushButton.setFont(font)
+                if len(menuName) > 14:
+                    temp = menuName
+                    menuName = textwrap.fill(temp, 14)
                 pushButton.setText(_translate("B3GUI", menuName))
                 pushButton.clicked.connect(self.sendOrder)
                 menuItem.addWidget(pushButton)
@@ -1020,6 +1024,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             stackedWidget.addWidget(menuPage)
         else:
             print("   ERROR: you idiot you have nothing configured")
+            
         stackedWidget.setCurrentIndex(0)
         stackedWidget.menuCount = menuCount
         
@@ -1172,7 +1177,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.layout_customAddConfirm.addWidget(dialog_customAddConfirm)
 
         _translate = QtCore.QCoreApplication.translate
-        self.customAddConfirm.setWindowTitle(_translate("CustomAddConfirmWindow", "CustomDialog"))
+        self.customAddConfirm.setWindowTitle(_translate("CustomAddConfirmWindow", "Looks delicious! Give it a name"))
         label_customAddConfirm.setText(_translate("CustomAddConfirmWindow", "Choose a name for you custom recipe."))
         dialog_customAddConfirm.accepted.connect(self.customConfirm)
         dialog_customAddConfirm.rejected.connect(self.customAddConfirm.destroy)
@@ -1433,7 +1438,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.layout_configAddConfirm.addWidget(dialog_configAddConfirm)
 
         _translate = QtCore.QCoreApplication.translate
-        self.configAddConfirm.setWindowTitle(_translate("ConfigAddConfirmWindow", "ConfigDialog"))
+        self.configAddConfirm.setWindowTitle(_translate("ConfigAddConfirmWindow", " "))
         label_configAddConfirm.setText(_translate("ConfigAddConfirmWindow", "Are you sure you add this to the configuration?"))
         dialog_configAddConfirm.accepted.connect(self.configConfirm)
         dialog_configAddConfirm.rejected.connect(self.configAddConfirm.destroy)
@@ -1491,7 +1496,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
             pass
         elif (self.stackedMenuWidget.currentIndex() == 0):
             self.pushButton_menuRight.deleteLater()
-        elif((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
+        elif ((self.stackedMenuWidget.currentIndex() + 1) == self.stackedMenuWidget.count()):
             self.pushButton_menuLeft.deleteLater()
         else:
             self.pushButton_menuRight.deleteLater()
@@ -1530,19 +1535,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.retranslateUi()
         self.stackedWidget.setCurrentIndex(0)
 
-        
-    def cupGift(self):
-        ##purely for test purposes in toggling cup present flag
-        ##this will eventually be removed
-        #ideally will replace with some setting toggle
-        global cupPresent
-        temp = not cupPresent
-        print("~~MQTT~~ Received message \"" + "1" + "\" from topic \"" + "alfred/cupStatus" + "\".")
-        cupPresent = temp
-
     def dock(self):
         self.configRefresh()
-        self.cupGift()
         #self.startButler()
         pubMQTT(client, DOCK, "dock")
         
@@ -1584,7 +1578,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.exitLabel.setObjectName("label")
 
         _translate = QtCore.QCoreApplication.translate
-        self.exit.setWindowTitle(_translate("ExitWindow", "Dialog"))
+        self.exit.setWindowTitle(_translate("ExitWindow", "Quit?"))
         self.exitLabel.setText(_translate("ExitWindow", "Are you sure you want to quit?"))
         self.exitDialog.accepted.connect(self.killUi)
         self.exitDialog.rejected.connect(self.exit.destroy)
@@ -1594,7 +1588,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.exit.setLayout(self.exitLayout)
 
         self.exit.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.exit.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        #self.exit.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.exit.show()
 
     def killUi(self):
@@ -1620,5 +1614,7 @@ def main():
     
 
 if __name__ == '__main__':
-    #try:
-    main()
+    try:
+        main()
+    except Error as e:
+        print(e)
