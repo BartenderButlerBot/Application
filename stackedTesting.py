@@ -116,7 +116,7 @@ def initMQTT(self):
     client.on_disconnect = on_disconnect #connect custom on disconnect function to on connect event
     client.loop_start()
     
-    ip = MQTT_SERVERD
+    ip = MQTT_SERVERP
     print("~~MQTT~~ Attempting broker connection:  ", ip)
     client.connect(ip, MQTT_PORT)
     
@@ -1396,7 +1396,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                 layout_progress.itemAt((2*i) + 1).widget().setMaximum(100)
                 layout_progress.itemAt((2*i) + 1).widget().setValue(0)
                 layout_progress.itemAt((2*i) + 1).widget().hide()
-                
+
         self.menuRefresh()
         
             
@@ -1456,19 +1456,13 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
 
     def configConfirm(self):
         layout = self.gridLayoutWidget_config.layout()
-        print("in config confirm")
         for i in range(1,4):
-            print("in for loop " + i)
-            if (ingName != "" and ingAmnt != "" and
-                not(layout.itemAtPosition(i, 2).widget().isReadOnly())):
-                print("past not")
-                ingName = str(layout.itemAtPosition(i, 2).widget().text())
-                ingAmnt = str(layout.itemAtPosition(i, 4).widget().text())
+            ingName = str(layout.itemAtPosition(i, 2).widget().text())
+            ingAmnt = str(layout.itemAtPosition(i, 4).widget().text())
+            if (ingName != "" and ingAmnt != "" and (not(layout.itemAtPosition(i, 2).widget().isReadOnly()))):                
                 updateInfo = ("ingredient_name = '" + ingName + "', inventory = "
                               + ingAmnt + ", start_inventory = " + ingAmnt)
                 updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
-
-        print("past for loop")
         self.configRefresh()
         self.configAddConfirm.destroy()
 
@@ -1499,7 +1493,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         
 
     def menuRefresh(self):
-        if (self.stackedMenuWidget.count() ==1):
+        if (self.stackedMenuWidget.count() < 2):
             pass
         elif (self.stackedMenuWidget.currentIndex() == 0):
             self.pushButton_menuRight.deleteLater()
