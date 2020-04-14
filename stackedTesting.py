@@ -26,7 +26,7 @@ MQTT_ID = "application"
 sqlConnect = None
 cursor = None
 
-#### TOPICS ####
+    #### TOPICS ####
 ORDER = "app/order"
 DOCK = "app/emergencyDock"
 STARTSIGNAL = "app/start"
@@ -1464,6 +1464,7 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
                               + ingAmnt + ", start_inventory = " + ingAmnt)
                 updateSQL(cursor, "config", updateInfo, "pump_id", "=", str(i))
         self.configRefresh()
+        self.toPrimary()
         self.configAddConfirm.destroy()
 
         
