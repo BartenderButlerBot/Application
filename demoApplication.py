@@ -61,7 +61,7 @@ def on_message(client, userdata, message):
     
      
     if message.topic == BARTSTATUS:
-        print("Bartender is " + msg)
+        #print("Bartender is " + msg)
         bartConnected = msg
         if msg == "intake":
             systemReady = False
@@ -166,8 +166,8 @@ def updateSQL(self, table, updatedInfo, column, conditional, condition):
             conditionCheck = '\'' + str(condition) + '\''
         else:
             conditionCheck = str(condition)
-        print('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
-                   str(column) + str(conditional) + conditionCheck)
+        #print('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
+                   #str(column) + str(conditional) + conditionCheck)
         cursor.execute('UPDATE ' + str(table) + ' SET ' + updatedInfo + ' WHERE ' + 
                        str(column) + str(conditional) + conditionCheck)
         sqlConnect.commit()        
@@ -1069,6 +1069,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         sender = self.sender()
         orderName = sender.text()
+        orderName = orderName.replace("\n", ' ')
+        print(orderName)
         self.label_curOrder_Name.setText(_translate("B3GUI", ("  " + str(orderName))))
         #print(orderName)
         orderRaw = fetchSQL(cursor, 'recipes', 'recipe_name', '=', str(orderName))
@@ -1102,12 +1104,8 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.label_curOrder_IngAmount.setText(_translate("B3GUI", ingAmt))
         global bartOrder
         bartOrder = order
-        print(order)
-        print(bartOrder)
         self.startButler()
-        self.configRefresh()
-        print(self.page_menuWindow.isAncestorOf(self.stackedMenuWidget))
-        
+        self.configRefresh()        
         self.toPrimary()
         #else:
             #print("Please place a cup in Alfred the Butler's tray.")
@@ -1541,6 +1539,17 @@ class Ui_B3GUI(QtWidgets.QMainWindow):
         self.configRefresh()
         #self.startButler()
         pubMQTT(client, DOCK, "dock")
+        time.sleep(1)
+        client.publish(BOTSTATUS, "docked@bar", qos = 2)
+        time.sleep(1)
+        client.publish(BARTSENSOR, "true", qos = 2)
+        time.sleep(2)
+        client.publish(BARTSTATUS, "intake", qos = 2)
+        time.sleep(4)
+        client.publish(BARTSTATUS, "done", qos = 2)
+        time.sleep(1)
+        client.publish(BOTSTATUS, "docked@base", qos = 2)
+        
         
     def exitPopup(self):
         self.exit.setObjectName("ExitWindow")
