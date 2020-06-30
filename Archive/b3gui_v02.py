@@ -9,6 +9,12 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
+class ListNode:
+    def __init__(self, val=0, nex=None):
+        self.val = val
+        self.next = nex
+        
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
@@ -64,15 +70,11 @@ class Ui_Form(object):
         self.label_6.setText(_translate("Form", "bartenderInventoryB"))
 
 try:
-    application = QtWidgets.QApplication(sys.argv)
-    application.setStyle('Fusion')
-    
-    main = QtWidgets.QWidget()
-    window = Ui_Form()
-    window.setupUi(main)
-    main.show()
-    
-    sys.exit(application.exec_())
+    num = 703
+    ff = num%10
+    print(ff)
+    lul = ListNode(5)
+    print(lul.val)
     
 except Exception as e:
     sys.stderr.write("Error: {0}".format(e))
